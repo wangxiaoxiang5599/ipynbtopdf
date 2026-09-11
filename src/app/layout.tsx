@@ -17,12 +17,16 @@ export const metadata: Metadata = {
   title: "ipynb to PDF — convert Jupyter notebooks online, free",
   description:
     "Convert .ipynb Jupyter notebooks to PDF in your browser. Keeps Markdown, code highlighting, LaTeX math, plots and tables. No upload, no install.",
+  /* A plain file rather than a generated route: static hosts serve by extension, and social
+     scrapers reject an image served as application/octet-stream. Regenerate with
+     scripts/build-og.mjs when the headline or domain changes. */
   openGraph: {
     type: "website",
     siteName: site.name,
     url: site.url,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Convert ipynb to PDF" }],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: { card: "summary_large_image", images: ["/og.png"] },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

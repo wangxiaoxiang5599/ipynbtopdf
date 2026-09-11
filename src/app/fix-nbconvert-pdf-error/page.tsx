@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Fix nbconvert PDF export errors (xelatex, pandoc, 500 error)",
+  title: "Fix nbconvert PDF errors: xelatex, pandoc, 500",
   description:
-    "Why 'jupyter nbconvert --to pdf' fails, and how to fix each error: xelatex not found, pandoc missing, 500 Internal Server Error, and unicode or CJK characters that break LaTeX.",
+    "Why 'jupyter nbconvert --to pdf' fails and how to fix it: xelatex not found, pandoc missing, 500 Internal Server Error, CJK characters.",
   alternates: { canonical: "/fix-nbconvert-pdf-error" },
 };
 

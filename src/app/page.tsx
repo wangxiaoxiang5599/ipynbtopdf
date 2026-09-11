@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "ipynb to PDF — convert Jupyter notebooks online, free",
   description:
-    "Convert .ipynb Jupyter notebooks to PDF in your browser. Keeps Markdown, syntax highlighting, LaTeX math, plots and tables. No upload, no install, no LaTeX required.",
+    "Convert .ipynb Jupyter notebooks to PDF in your browser. Keeps Markdown, code highlighting, LaTeX math, plots and tables. No upload, no install.",
   alternates: { canonical: "/" },
 };
 

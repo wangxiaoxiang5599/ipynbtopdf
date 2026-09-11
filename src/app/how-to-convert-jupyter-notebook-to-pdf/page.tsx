@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "How to convert a Jupyter notebook to PDF (5 ways, compared)",
+  title: "How to convert a Jupyter notebook to PDF (5 ways)",
   description:
-    "Five ways to turn an .ipynb file into a PDF: an online converter, Jupyter's own menu, nbconvert, webpdf and VS Code. What each one needs, and where each one breaks.",
+    "Five ways to turn an .ipynb file into a PDF: online converter, Jupyter's menu, nbconvert, webpdf and VS Code — and where each one breaks.",
   alternates: { canonical: "/how-to-convert-jupyter-notebook-to-pdf" },
 };
 

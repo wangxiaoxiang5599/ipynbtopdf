@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "FAQ — converting .ipynb files to PDF",
+  title: "ipynb to PDF: frequently asked questions",
   description:
     "Privacy, file size, math rendering, hiding code cells, page breaks and what happens to interactive outputs when you convert a Jupyter notebook to PDF.",
   alternates: { canonical: "/faq" },

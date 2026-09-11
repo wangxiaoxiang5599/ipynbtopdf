@@ -34,6 +34,11 @@ npm run dev
   progress bar redrawing itself; the second is a Windows line ending.
 - **Print margins live in `@page`, not as padding.** Padding applies once across the whole
   flow, which leaves content flush against the paper edge at every page break.
+- **`@emnapi/core` and `@emnapi/runtime` are devDependencies nothing imports.** They are
+  dependencies of `@img/sharp-wasm32`, which npm lists in the lockfile but whose own
+  dependencies it will not resolve while running on Windows. A Linux CI then runs `npm ci`,
+  finds them missing, and refuses to install. Declaring them puts them in the lockfile so
+  the build host is satisfied. Drop them once the lockfile is generated on Linux.
 
 ## Testing
 

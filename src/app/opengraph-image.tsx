@@ -5,6 +5,7 @@ import { ImageResponse } from "next/og";
 export const alt = "Convert ipynb to PDF — free, in your browser";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+export const dynamic = "force-static";
 
 export default function OpengraphImage() {
   const logo = readFileSync(join(process.cwd(), "public", "logo.png")).toString("base64");
@@ -24,7 +25,6 @@ export default function OpengraphImage() {
           borderBottom: "18px solid #f37726",
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- satori renders plain img only */}
         <img
           src={`data:image/png;base64,${logo}`}
           width={224}

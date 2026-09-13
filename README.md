@@ -1,5 +1,7 @@
 # ipynbtopdf
 
+**Live at [ipynbtopdf.xyz](https://ipynbtopdf.xyz).**
+
 Converts Jupyter `.ipynb` notebooks to PDF entirely in the browser. No backend, no upload,
 no LaTeX toolchain — the notebook is parsed and rendered client-side, then handed to the
 browser's own print engine so the PDF keeps real, selectable text.

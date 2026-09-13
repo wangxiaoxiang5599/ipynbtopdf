@@ -14,4 +14,5 @@ export const site = {
   name: "ipynbtopdf",
   url: resolveUrl(),
   tagline: "Convert Jupyter notebooks to PDF, right in your browser",
+  repo: "https://github.com/wangxiaoxiang5599/ipynbtopdf",
 };

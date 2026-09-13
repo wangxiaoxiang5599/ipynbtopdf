@@ -159,7 +159,7 @@ export function Converter() {
             }}
           />
           <UploadMark />
-          <span className="mt-6 rounded-xl bg-brand px-9 py-4 text-[19px] font-medium text-white">
+          <span className="mt-6 rounded-xl bg-brand px-9 py-4 text-[19px] font-medium text-ink">
             {busy ? "Opening…" : "Select .ipynb file"}
           </span>
           <p className="mt-4 text-[15px] text-muted">or drop it here</p>
@@ -206,7 +206,7 @@ export function Converter() {
             <button
               type="button"
               onClick={download}
-              className="rounded-xl bg-brand px-7 py-3 text-[17px] font-medium text-white hover:bg-brand-dark"
+              className="rounded-xl bg-brand px-7 py-3 text-[17px] font-medium text-ink hover:bg-brand-line"
             >
               Download PDF
             </button>
@@ -293,7 +293,7 @@ function PrintGuide({
         <button
           type="button"
           onClick={onConfirm}
-          className="mt-7 w-full rounded-xl bg-brand px-6 py-4 text-[18px] font-medium text-white hover:bg-brand-dark"
+          className="mt-7 w-full rounded-xl bg-brand px-6 py-4 text-[18px] font-medium text-ink hover:bg-brand-line"
         >
           Got it, open the print window
         </button>

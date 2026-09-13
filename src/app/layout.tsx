@@ -8,7 +8,9 @@ import { site } from "@/lib/site";
 
 const sans = Inter({ variable: "--font-sans-body", subsets: ["latin"] });
 
-const mono = JetBrains_Mono({ variable: "--font-mono-code", subsets: ["latin"] });
+/* Not preloaded: it draws the header wordmark and cell prompts, nothing the first paint waits
+   for, and the preload was competing with Inter for the H1. */
+const mono = JetBrains_Mono({ variable: "--font-mono-code", subsets: ["latin"], preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),

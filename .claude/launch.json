@@ -4,8 +4,23 @@
     {
       "name": "dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "static",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "serve",
+        "out",
+        "-l",
+        "3010",
+        "-s"
+      ],
+      "port": 3010
     }
   ]
 }

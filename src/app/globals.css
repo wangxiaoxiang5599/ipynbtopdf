@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #faf8f5;
+  --bg: #f5f5fa;
   --surface: #ffffff;
-  --ink: #1a1614;
-  --ink-soft: #45403b;
-  --muted: #6b635c;
-  --line: #e5e0d8;
-  --line-soft: #eee9e1;
+  --ink: #33333b;
+  --ink-soft: #47474f;
+  --muted: #707078;
+  --line: #d6d6df;
+  --line-soft: #e8e8ef;
   --brand: #f37726;
-  --brand-dark: #b5520f;
-  --brand-soft: #fef6f1;
-  --brand-line: #f0b48c;
+  --brand-dark: #d8621a;
+  --brand-soft: #fff3ea;
+  --brand-line: #f5a76c;
+  --code-bg: #f5f5fa;
 }
 
 @theme inline {
@@ -32,11 +33,48 @@
 
 body {
   background: var(--bg);
-  color: var(--ink);
+  color: var(--ink-soft);
   font-family: var(--font-sans-body), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* The white panel every content page sits in; the grey page behind it is the frame. */
+.prose-page {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.prose-page h1 {
+  color: var(--ink);
+}
+
+/* The iLovePDF tool card: white on the grey page, a hairline border, a lift on hover. */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 18px rgba(51, 51, 59, 0.08);
+  transform: translateY(-2px);
+}
+
+.card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
 .prose-page h2 {
+  color: var(--ink);
   font-size: 1.625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -45,6 +83,7 @@ body {
 }
 
 .prose-page h3 {
+  color: var(--ink);
   font-size: 1.125rem;
   font-weight: 600;
   margin: 1.75rem 0 0.5rem;
@@ -81,13 +120,13 @@ body {
 .prose-page code {
   font-family: var(--font-mono-code), ui-monospace, monospace;
   font-size: 0.875em;
-  background: #f4f1ec;
+  background: var(--code-bg);
   border-radius: 4px;
   padding: 0.1em 0.35em;
 }
 
 .prose-page pre {
-  background: #f7f5f1;
+  background: var(--code-bg);
   border: 1px solid var(--line-soft);
   border-left: 3px solid var(--brand-line);
   border-radius: 6px;
@@ -185,7 +224,7 @@ body {
 .nb-md code {
   font-family: var(--font-mono-code), ui-monospace, monospace;
   font-size: 0.875em;
-  background: #f4f1ec;
+  background: var(--code-bg);
   border-radius: 4px;
   padding: 0.1em 0.35em;
 }
@@ -213,12 +252,12 @@ body {
 
 .nb-md th,
 .nb-out th {
-  background: #f4f1ec;
+  background: var(--code-bg);
   font-weight: 500;
 }
 
 .nb-code {
-  background: #f7f5f1;
+  background: var(--code-bg);
   border: 1px solid var(--line-soft);
   border-left: 3px solid var(--brand-line);
   border-radius: 6px;
@@ -237,7 +276,7 @@ body {
 }
 
 .nb-md pre {
-  background: #f7f5f1;
+  background: var(--code-bg);
   border: 1px solid var(--line-soft);
   border-radius: 6px;
   padding: 10px 14px;
@@ -290,7 +329,7 @@ body {
   font-family: var(--font-mono-code), ui-monospace, monospace;
   font-size: 0.875em;
   color: var(--muted);
-  background: #f4f1ec;
+  background: var(--code-bg);
   border-radius: 4px;
   padding: 0.15em 0.4em;
   white-space: pre-wrap;

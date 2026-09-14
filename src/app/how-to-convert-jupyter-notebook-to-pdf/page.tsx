@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <article className="prose-page mx-auto max-w-2xl px-5 pt-14 pb-4">
+    <article className="prose-page mx-auto my-10 max-w-3xl px-6 py-10 sm:my-14 sm:px-12 sm:py-12">
       <h1 className="text-[40px] font-semibold leading-[1.15] tracking-tight text-ink">
         How to convert a Jupyter notebook to PDF
       </h1>

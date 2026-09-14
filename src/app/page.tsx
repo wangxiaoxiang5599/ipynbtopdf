@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Converter } from "@/components/Converter";
 import { site } from "@/lib/site";
+import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
   /* "converter" is its own query (ipynb to pdf converter) and every competing page carries
@@ -13,11 +14,18 @@ export const metadata: Metadata = {
 };
 
 const keeps = [
-  { title: "Markdown", body: "Headings, lists, tables, images." },
-  { title: "Code", body: "Highlighted, in Python, R, Julia and more." },
-  { title: "Math", body: "LaTeX equations, rendered properly." },
-  { title: "Plots", body: "Charts, DataFrames, printed output." },
-];
+  { title: "Markdown", body: "Headings, lists, tables, images.", icon: "markdown" },
+  { title: "Code", body: "Highlighted, in Python, R, Julia and more.", icon: "code" },
+  { title: "Math", body: "LaTeX equations, rendered properly.", icon: "math" },
+  { title: "Plots", body: "Charts, DataFrames, printed output.", icon: "plots" },
+] as const;
+
+const badges = [
+  { label: "No upload", icon: "shield" },
+  { label: "No account", icon: "user" },
+  { label: "No install", icon: "bolt" },
+  { label: "Open source", icon: "code" },
+] as const;
 
 const steps = [
   {
@@ -171,174 +179,187 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-5xl px-5">
-        <section className="print-hide pt-12 pb-9 text-center sm:pt-16">
-          <h1 className="text-[42px] leading-[1.1] font-semibold tracking-tight text-ink sm:text-[58px]">
+      <div className="mx-auto max-w-6xl px-5">
+        <section className="print-hide pt-12 pb-10 text-center sm:pt-16">
+          <h1 className="text-[34px] leading-[1.15] font-semibold text-ink sm:text-[42px] sm:leading-[52px]">
             Convert ipynb to PDF
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-[19px] leading-snug text-muted">
-            Free, and your file never leaves your computer.
+          <p className="mx-auto mt-3 max-w-2xl text-[19px] leading-snug text-ink-soft sm:text-[22px] sm:leading-8">
+            Turn a Jupyter notebook into a PDF in your browser. Free, and the file never
+            leaves your computer.
           </p>
         </section>
 
-        <section className="print-area mx-auto max-w-3xl">
+        <section className="print-area">
           <Converter />
         </section>
 
-        <section className="print-hide mx-auto mt-7 flex max-w-3xl flex-wrap justify-center gap-x-9 gap-y-2 text-[15px] text-muted">
-          <span>No upload</span>
-          <span>No account</span>
-          <span>No install</span>
-          <a href={site.repo} className="underline underline-offset-2 hover:text-ink">
-            Open source
-          </a>
+        <section className="print-hide mx-auto mt-10 flex max-w-3xl flex-wrap justify-center gap-x-8 gap-y-3 text-[15px] text-ink-soft">
+          {badges.map((badge) => (
+            <span key={badge.label} className="inline-flex items-center gap-2">
+              <Icon name={badge.icon} size={18} />
+              {badge.label === "Open source" ? (
+                <a href={site.repo} className="hover:text-brand">
+                  {badge.label}
+                </a>
+              ) : (
+                badge.label
+              )}
+            </span>
+          ))}
         </section>
 
-        <section className="print-hide mt-24">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">
+        <section className="print-hide mt-28 text-center">
+          <h2 className="text-[30px] font-semibold text-ink sm:text-[34px]">
             Your notebook, kept intact
           </h2>
-          <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">
+          <p className="mx-auto mt-3 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
             An <code className="font-mono text-[15px]">.ipynb</code> file is JSON: a list of
             cells, each holding Markdown or code, plus whatever output the code produced when
             it last ran. This converter renders all of it — the same cells, in the same order,
             with the outputs that were saved in the file.
           </p>
-          <div className="mt-7 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
+          <div className="mt-10 grid gap-5 text-left sm:grid-cols-2 lg:grid-cols-4">
             {keeps.map((item) => (
-              <div key={item.title} className="bg-surface px-6 py-6">
-                <h3 className="text-[18px] font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1 text-[16px] leading-relaxed text-muted">{item.body}</p>
+              <div key={item.title} className="card">
+                <span className="card-icon">
+                  <Icon name={item.icon} size={26} />
+                </span>
+                <h3 className="mt-5 text-[20px] font-medium text-ink">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{item.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="print-hide mt-20">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">
-            Three steps
+        <section className="print-hide mt-24 text-center">
+          <h2 className="text-[30px] font-semibold text-ink sm:text-[34px]">
+            How to convert a notebook to PDF
           </h2>
-          <ol className="mt-7 grid gap-7 sm:grid-cols-3">
+          <ol className="mt-10 grid gap-5 text-left sm:grid-cols-3">
             {steps.map((step, index) => (
-              <li key={step.title}>
-                <span className="font-mono text-[15px] text-brand-dark">{index + 1}</span>
-                <h3 className="mt-1.5 text-[18px] font-semibold text-ink">{step.title}</h3>
-                <p className="mt-1 text-[16px] leading-relaxed text-muted">{step.body}</p>
+              <li key={step.title} className="card">
+                <span className="flex size-10 items-center justify-center rounded-full bg-brand text-[17px] font-semibold text-white">
+                  {index + 1}
+                </span>
+                <h3 className="mt-5 text-[20px] font-medium text-ink">{step.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{step.body}</p>
               </li>
             ))}
           </ol>
         </section>
 
-        <section className="print-hide mt-20">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">
-            Five ways to turn a notebook into a PDF
-          </h2>
-          <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">
-            Every other route goes through nbconvert, and nbconvert&rsquo;s PDF exporter goes
-            through LaTeX. That is where most of them fail on a machine that has never had
-            TeX installed.
-          </p>
-          <div className="mt-7 overflow-x-auto rounded-xl border border-line">
-            <table className="w-full min-w-[640px] text-left text-[15px]">
-              <thead className="bg-surface text-muted">
+        <section className="print-hide mt-24">
+          <div className="text-center">
+            <h2 className="text-[30px] font-semibold text-ink sm:text-[34px]">
+              Five ways to turn a notebook into a PDF
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
+              Every other route goes through nbconvert, and nbconvert&rsquo;s PDF exporter goes
+              through LaTeX. That is where most of them fail on a machine that has never had
+              TeX installed.
+            </p>
+          </div>
+          <div className="mt-10 overflow-x-auto rounded-2xl border border-line bg-surface">
+            <table className="w-full min-w-[680px] text-left text-[15px]">
+              <thead className="text-muted">
                 <tr className="border-b border-line">
-                  <th className="px-4 py-3 font-medium">Method</th>
-                  <th className="px-4 py-3 font-medium">Needs installing</th>
-                  <th className="px-4 py-3 font-medium">Hide code</th>
-                  <th className="px-4 py-3 font-medium">Works offline</th>
-                  <th className="px-4 py-3 font-medium">Usual failure</th>
+                  <th className="px-5 py-4 font-medium">Method</th>
+                  <th className="px-5 py-4 font-medium">Needs installing</th>
+                  <th className="px-5 py-4 font-medium">Hide code</th>
+                  <th className="px-5 py-4 font-medium">Works offline</th>
+                  <th className="px-5 py-4 font-medium">Usual failure</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line-soft">
-                {methods.map((m) => (
-                  <tr key={m.name} className="bg-surface">
-                    <td className="px-4 py-3 font-medium text-ink">{m.name}</td>
-                    <td className="px-4 py-3 text-ink-soft">{m.install}</td>
-                    <td className="px-4 py-3 text-ink-soft">{m.hideCode}</td>
-                    <td className="px-4 py-3 text-ink-soft">{m.offline}</td>
-                    <td className="px-4 py-3 text-ink-soft">{m.failure}</td>
+                {methods.map((m, index) => (
+                  <tr key={m.name} className={index === 0 ? "bg-brand-soft" : undefined}>
+                    <td className="px-5 py-4 font-medium text-ink">{m.name}</td>
+                    <td className="px-5 py-4 text-ink-soft">{m.install}</td>
+                    <td className="px-5 py-4 text-ink-soft">{m.hideCode}</td>
+                    <td className="px-5 py-4 text-ink-soft">{m.offline}</td>
+                    <td className="px-5 py-4 text-ink-soft">{m.failure}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-6 text-[16px] text-ink-soft">
+          <p className="mt-6 text-center text-[16px] text-ink-soft">
             <Link
               href="/how-to-convert-jupyter-notebook-to-pdf"
-              className="text-brand-dark underline underline-offset-2"
+              className="font-medium text-brand-dark hover:underline"
             >
               Each method, step by step
             </Link>
             {" · "}
             <Link
               href="/fix-nbconvert-pdf-error"
-              className="text-brand-dark underline underline-offset-2"
+              className="font-medium text-brand-dark hover:underline"
             >
               Fixing nbconvert errors
             </Link>
           </p>
         </section>
 
-        <section className="print-hide mt-20">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">
+        <section className="print-hide mt-24 text-center">
+          <h2 className="text-[30px] font-semibold text-ink sm:text-[34px]">
             From Colab, VS Code or Kaggle
           </h2>
-          <p className="mt-3 max-w-2xl text-[17px] leading-relaxed text-muted">
+          <p className="mx-auto mt-3 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
             Wherever the notebook lives, the route is the same: get the{" "}
             <code className="font-mono text-[15px]">.ipynb</code> file onto your disk, then
             open it here.
           </p>
-          <div className="mt-7 grid gap-7 sm:grid-cols-3">
+          <div className="mt-10 grid gap-5 text-left sm:grid-cols-3">
             {sources.map((item) => (
-              <div key={item.title}>
-                <h3 className="text-[18px] font-semibold text-ink">{item.title}</h3>
-                <p className="mt-1 text-[16px] leading-relaxed text-muted">{item.body}</p>
+              <div key={item.title} className="card">
+                <h3 className="text-[20px] font-medium text-ink">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{item.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="print-hide mt-20">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">
-            How it works, and why you can trust it
-          </h2>
-          <div className="mt-3 max-w-2xl space-y-4 text-[17px] leading-relaxed text-muted">
-            <p>
-              The whole converter is JavaScript running in this page. Markdown is rendered
-              with markdown-it, code is highlighted with highlight.js, equations are typeset
-              with KaTeX, and the result is sanitised with DOMPurify before it is shown. There
-              is no upload endpoint — not a private one, not an optional one — so the file
-              cannot leave your machine.
-            </p>
-            <p>
-              You do not have to take that on faith:{" "}
-              <a
-                href={site.repo}
-                className="text-brand-dark underline underline-offset-2"
-              >
-                the source is on GitHub
-              </a>{" "}
-              under the MIT licence, and the site is a static export with no server behind
-              it. If your employer does not allow notebooks on third-party services, this is
-              the converter you can still use.
-            </p>
+        <section className="print-hide mt-24">
+          <div className="card mx-auto max-w-3xl sm:p-10">
+            <h2 className="text-[26px] font-semibold text-ink sm:text-[30px]">
+              How it works, and why you can trust it
+            </h2>
+            <div className="mt-4 space-y-4 text-[16px] leading-relaxed text-ink-soft">
+              <p>
+                The whole converter is JavaScript running in this page. Markdown is rendered
+                with markdown-it, code is highlighted with highlight.js, equations are typeset
+                with KaTeX, and the result is sanitised with DOMPurify before it is shown. There
+                is no upload endpoint — not a private one, not an optional one — so the file
+                cannot leave your machine.
+              </p>
+              <p>
+                You do not have to take that on faith:{" "}
+                <a href={site.repo} className="font-medium text-brand-dark hover:underline">
+                  the source is on GitHub
+                </a>{" "}
+                under the MIT licence, and the site is a static export with no server behind
+                it. If your employer does not allow notebooks on third-party services, this is
+                the converter you can still use.
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="print-hide mt-20">
-          <h2 className="text-[30px] font-semibold tracking-tight text-ink">Questions</h2>
-          <dl className="mt-7 divide-y divide-line-soft border-t border-line-soft">
+        <section className="print-hide mt-24">
+          <h2 className="text-center text-[30px] font-semibold text-ink sm:text-[34px]">
+            Questions
+          </h2>
+          <dl className="mx-auto mt-10 max-w-3xl divide-y divide-line-soft rounded-2xl border border-line bg-surface px-6 sm:px-8">
             {faqs.map((item) => (
               <div key={item.q} className="py-6">
-                <dt className="text-[18px] font-semibold text-ink">{item.q}</dt>
-                <dd className="mt-2 max-w-2xl text-[16px] leading-relaxed text-muted">
-                  {item.a}
-                </dd>
+                <dt className="text-[18px] font-medium text-ink">{item.q}</dt>
+                <dd className="mt-2 text-[15px] leading-relaxed text-muted">{item.a}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-8 text-[16px] text-ink-soft">
-            <Link href="/faq" className="text-brand-dark underline underline-offset-2">
+          <p className="mt-8 text-center text-[16px] text-ink-soft">
+            <Link href="/faq" className="font-medium text-brand-dark hover:underline">
               More questions, answered in detail
             </Link>
           </p>

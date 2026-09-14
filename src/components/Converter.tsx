@@ -89,12 +89,38 @@ export function Converter() {
     void loadFile(new File([blob], "sample-notebook.ipynb"));
   };
 
-  const onDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    setDragging(false);
-    const file = event.dataTransfer.files?.[0];
-    if (file) void loadFile(file);
-  };
+  /* The whole window is the drop target, so a file dragged anywhere onto the page opens it.
+     dragenter/dragleave fire for every child crossed, hence the depth counter. */
+  useEffect(() => {
+    let depth = 0;
+    const enter = (event: DragEvent) => {
+      if (!event.dataTransfer?.types.includes("Files")) return;
+      depth += 1;
+      setDragging(true);
+    };
+    const leave = () => {
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setDragging(false);
+    };
+    const over = (event: DragEvent) => event.preventDefault();
+    const drop = (event: DragEvent) => {
+      event.preventDefault();
+      depth = 0;
+      setDragging(false);
+      const file = event.dataTransfer?.files?.[0];
+      if (file) void loadFile(file);
+    };
+    window.addEventListener("dragenter", enter);
+    window.addEventListener("dragleave", leave);
+    window.addEventListener("dragover", over);
+    window.addEventListener("drop", drop);
+    return () => {
+      window.removeEventListener("dragenter", enter);
+      window.removeEventListener("dragleave", leave);
+      window.removeEventListener("dragover", over);
+      window.removeEventListener("drop", drop);
+    };
+  }, [loadFile]);
 
   const print = () => {
     const previous = document.title;
@@ -132,22 +158,21 @@ export function Converter() {
     setError("");
   };
 
+  const dropOverlay = dragging ? (
+    <div className="print-hide pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-brand/90 text-center text-white">
+      <div>
+        <UploadMark size={64} color="#fff" />
+        <p className="mt-4 text-[32px] font-semibold">Drop your notebook here</p>
+        <p className="mt-1 text-[17px] opacity-90">.ipynb files only</p>
+      </div>
+    </div>
+  ) : null;
+
   if (!notebook) {
     return (
-      <div>
-        <label
-          onDragOver={(event) => {
-            event.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={onDrop}
-          className={`flex cursor-pointer flex-col items-center rounded-2xl border-2 border-dashed px-6 py-16 text-center transition-colors ${
-            dragging
-              ? "border-brand bg-brand-soft"
-              : "border-brand-line bg-brand-soft/60 hover:border-brand"
-          }`}
-        >
+      <div className="text-center">
+        {dropOverlay}
+        <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl bg-brand px-12 py-6 text-[24px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] transition-colors hover:bg-brand-dark">
           <input
             type="file"
             accept=".ipynb,application/json"
@@ -158,26 +183,25 @@ export function Converter() {
               event.target.value = "";
             }}
           />
-          <UploadMark />
-          <span className="mt-6 rounded-xl bg-brand px-9 py-4 text-[19px] font-medium text-ink">
-            {busy ? "Opening…" : "Select .ipynb file"}
-          </span>
-          <p className="mt-4 text-[15px] text-muted">or drop it here</p>
+          <UploadMark size={22} color="#fff" />
+          {busy ? "Opening…" : "Select .ipynb file"}
         </label>
+        <p className="mt-4 text-[14px] text-muted">or drop the notebook anywhere on this page</p>
 
         {error ? (
-          <p className="mt-4 rounded-lg border border-[#f3d0d0] bg-[#fdf2f2] px-4 py-3 text-[15px] text-[#9b2c2c]">
+          <p className="mx-auto mt-6 max-w-md rounded-lg border border-[#f3d0d0] bg-[#fdf2f2] px-4 py-3 text-[15px] text-[#9b2c2c]">
             {error}
           </p>
         ) : null}
 
-        <p className="mt-5 text-center text-[15px] text-muted">
+        <p className="mt-8 text-[15px] text-muted">
+          No notebook to hand?{" "}
           <button
             type="button"
             onClick={() => void loadSample()}
-            className="text-brand-dark underline underline-offset-2 hover:text-brand"
+            className="font-medium text-brand-dark underline underline-offset-2 hover:text-brand"
           >
-            Try a sample notebook
+            Try a sample
           </button>
         </p>
       </div>
@@ -186,63 +210,69 @@ export function Converter() {
 
   return (
     <div>
-      <div className="print-hide rounded-2xl border border-line bg-surface px-5 py-5">
-        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
-          <div className="min-w-0">
-            <p className="truncate font-mono text-[15px] text-ink">{fileName}</p>
-            {stats ? (
-              <p className="mt-0.5 text-[14px] text-muted">{stats.cells} cells</p>
-            ) : null}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={reset}
-              className="rounded-xl border border-line px-5 py-3 text-[16px] text-ink-soft hover:border-ink/30"
-            >
-              New file
-            </button>
-            <button
-              type="button"
-              onClick={download}
-              className="rounded-xl bg-brand px-7 py-3 text-[17px] font-medium text-ink hover:bg-brand-line"
-            >
-              Download PDF
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-line-soft pt-4 text-[16px] text-ink-soft">
-          <Toggle
-            label="Code"
-            checked={options.showCode}
-            onChange={(showCode) => setOptions((o) => ({ ...o, showCode }))}
-          />
-          <Toggle
-            label="Results"
-            checked={options.showOutputs}
-            onChange={(showOutputs) => setOptions((o) => ({ ...o, showOutputs }))}
-          />
-          <Toggle
-            label="Cell numbers"
-            checked={options.showPrompts}
-            onChange={(showPrompts) => setOptions((o) => ({ ...o, showPrompts }))}
-          />
-        </div>
-      </div>
-
+      {dropOverlay}
       {showGuide ? (
         <PrintGuide onCancel={() => setShowGuide(false)} onConfirm={confirmGuide} />
       ) : null}
 
-      <div className="print-area mt-5 rounded-xl border border-line bg-surface p-8 sm:p-10">
-        <div
-          id="nb-doc"
-          ref={docRef}
-          className="nb-doc"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] print:block">
+        <div className="print-area order-2 rounded-2xl border border-line bg-surface p-8 sm:p-10 lg:order-1">
+          <div
+            id="nb-doc"
+            ref={docRef}
+            className="nb-doc"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </div>
+
+        <aside className="print-hide order-1 rounded-2xl border border-line bg-surface lg:sticky lg:top-[84px] lg:order-2">
+          <div className="border-b border-line-soft px-6 py-5">
+            <h2 className="text-[20px] font-semibold text-ink">PDF options</h2>
+            <p className="mt-2 truncate font-mono text-[13px] text-ink-soft" title={fileName}>
+              {fileName}
+            </p>
+            {stats ? <p className="text-[13px] text-muted">{stats.cells} cells</p> : null}
+          </div>
+
+          <div className="space-y-4 px-6 py-5">
+            <Toggle
+              label="Code cells"
+              hint="Off gives a report with only text and results"
+              checked={options.showCode}
+              onChange={(showCode) => setOptions((o) => ({ ...o, showCode }))}
+            />
+            <Toggle
+              label="Outputs"
+              hint="Plots, tables and printed text"
+              checked={options.showOutputs}
+              onChange={(showOutputs) => setOptions((o) => ({ ...o, showOutputs }))}
+            />
+            <Toggle
+              label="Cell numbers"
+              hint="The In [1] / Out [1] labels"
+              checked={options.showPrompts}
+              onChange={(showPrompts) => setOptions((o) => ({ ...o, showPrompts }))}
+            />
+          </div>
+
+          <div className="border-t border-line-soft px-6 py-5">
+            <button
+              type="button"
+              onClick={download}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-[20px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] hover:bg-brand-dark"
+            >
+              Download PDF
+              <ArrowMark />
+            </button>
+            <button
+              type="button"
+              onClick={reset}
+              className="mt-3 w-full rounded-xl border border-line px-5 py-2.5 text-[15px] text-ink-soft hover:border-ink/40"
+            >
+              Choose another file
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );
@@ -293,7 +323,7 @@ function PrintGuide({
         <button
           type="button"
           onClick={onConfirm}
-          className="mt-7 w-full rounded-xl bg-brand px-6 py-4 text-[18px] font-medium text-ink hover:bg-brand-line"
+          className="mt-7 w-full rounded-xl bg-brand px-6 py-4 text-[18px] font-medium text-white hover:bg-brand-dark"
         >
           Got it, open the print window
         </button>
@@ -304,36 +334,49 @@ function PrintGuide({
 
 function Toggle({
   label,
+  hint,
   checked,
   onChange,
 }: {
   label: string;
+  hint: string;
   checked: boolean;
   onChange: (value: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 select-none">
+    <label className="flex cursor-pointer items-start justify-between gap-4 select-none">
+      <span>
+        <span className="block text-[15px] font-medium text-ink">{label}</span>
+        <span className="block text-[13px] text-muted">{hint}</span>
+      </span>
       <input
         type="checkbox"
+        role="switch"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="size-[18px] accent-brand"
+        className="peer sr-only"
       />
-      {label}
+      <span
+        aria-hidden="true"
+        className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-line transition-colors peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"
+      />
     </label>
   );
 }
 
-function UploadMark() {
+function ArrowMark() {
   return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M6 20.5h12a2 2 0 0 0 2-2V8.5L14.5 3H6a2 2 0 0 0-2 2v13.5a2 2 0 0 0 2 2Z"
-        stroke="#f37726"
-        strokeWidth="1.4"
-      />
-      <path d="M14 3v5.5h6" stroke="#f37726" strokeWidth="1.4" />
-      <path d="M12 16v-5m0 0-2 2m2-2 2 2" stroke="#f37726" strokeWidth="1.4" />
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function UploadMark({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12 16V4m0 0-5 5m5-5 5 5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke={color} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

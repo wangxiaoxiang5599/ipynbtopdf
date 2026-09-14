@@ -31,6 +31,32 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/og.png"] },
 };
 
+/* Site-level entities, emitted once here so every page carries them. The home page adds
+   the SoftwareApplication and FAQPage that only describe itself; these two say what the site
+   is called and who publishes it, which is what AI search engines read when they cite a page.
+   Organization rather than Person: the wordmark is the brand, and a personal name would only
+   invite "who is that?" in a citation. */
+const siteJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${site.url}/#website`,
+    name: site.name,
+    url: site.url,
+    description: site.tagline,
+    publisher: { "@id": `${site.url}/#organization` },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${site.url}/#organization`,
+    name: site.name,
+    url: site.url,
+    logo: `${site.url}/logo.png`,
+    sameAs: [site.repo],
+  },
+];
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -38,6 +64,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${sans.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

@@ -3,6 +3,13 @@ import { site } from "@/lib/site";
 
 const columns = [
   {
+    title: "Tools",
+    links: [
+      { href: "/", label: "ipynb to PDF" },
+      { href: "/ipynb-to-html", label: "ipynb to HTML" },
+    ],
+  },
+  {
     title: "Guides",
     links: [
       { href: "/how-to-convert-jupyter-notebook-to-pdf", label: "How to convert a notebook to PDF" },
@@ -23,7 +30,7 @@ const columns = [
 export function SiteFooter() {
   return (
     <footer className="print-hide mt-24 border-t border-line-soft bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <p className="text-[20px] font-bold tracking-tight text-ink">
             ipynb<span className="text-brand">to</span>pdf

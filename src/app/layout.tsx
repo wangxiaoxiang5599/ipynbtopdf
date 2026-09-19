@@ -5,6 +5,7 @@ import "katex/dist/katex.min.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { site } from "@/lib/site";
+import { notebookCss } from "@/lib/notebook-css";
 
 const sans = Inter({ variable: "--font-sans-body", subsets: ["latin"] });
 
@@ -68,6 +69,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
+        {/* The notebook stylesheet lives in a TS module so the HTML export can embed the same
+            text; see notebook-css.ts. Unlayered, like the rules it left behind in globals.css. */}
+        <style dangerouslySetInnerHTML={{ __html: notebookCss }} />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

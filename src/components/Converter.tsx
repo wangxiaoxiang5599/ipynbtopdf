@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Notebook, NotebookStats, RenderOptions } from "@/lib/ipynb";
+import { downloadText, fragmentHtml, standaloneHtml, type HtmlExportKind } from "@/lib/export-html";
 
 type Lib = typeof import("@/lib/ipynb");
 
@@ -13,7 +14,11 @@ const defaultOptions: RenderOptions = {
 
 const GUIDE_SEEN = "ipynbtopdf.guide-seen";
 
-export function Converter() {
+/* One component serves both tool pages. Everything up to the rendered preview is identical;
+   the mode only decides what the sidebar's buttons do with that preview. */
+export type ConverterMode = "pdf" | "html";
+
+export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
   const libRef = useRef<Lib | null>(null);
   const docRef = useRef<HTMLDivElement | null>(null);
   const [notebook, setNotebook] = useState<Notebook | null>(null);
@@ -25,6 +30,8 @@ export function Converter() {
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState("");
   const [showGuide, setShowGuide] = useState(false);
+  const [exportKind, setExportKind] = useState<HtmlExportKind>("page");
+  const [copied, setCopied] = useState(false);
 
   const loadFile = useCallback(async (file: File) => {
     setBusy(true);
@@ -150,6 +157,23 @@ export function Converter() {
     setTimeout(print, 0);
   };
 
+  const baseName = fileName.replace(/\.ipynb$/i, "") || "notebook";
+
+  const exportHtml = () =>
+    exportKind === "page" ? standaloneHtml(baseName, html) : fragmentHtml(html);
+
+  const downloadHtml = () => downloadText(`${baseName}.html`, exportHtml());
+
+  const copyHtml = async () => {
+    try {
+      await navigator.clipboard.writeText(exportHtml());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setError("The browser refused clipboard access. Download the file instead.");
+    }
+  };
+
   const reset = () => {
     setNotebook(null);
     setStats(null);
@@ -227,7 +251,9 @@ export function Converter() {
 
         <aside className="print-hide order-1 rounded-2xl border border-line bg-surface lg:sticky lg:top-[84px] lg:order-2">
           <div className="border-b border-line-soft px-6 py-5">
-            <h2 className="text-[20px] font-semibold text-ink">PDF options</h2>
+            <h2 className="text-[20px] font-semibold text-ink">
+              {mode === "pdf" ? "PDF options" : "HTML options"}
+            </h2>
             <p className="mt-2 truncate font-mono text-[13px] text-ink-soft" title={fileName}>
               {fileName}
             </p>
@@ -255,15 +281,52 @@ export function Converter() {
             />
           </div>
 
+          {mode === "html" ? (
+            <fieldset className="border-t border-line-soft px-6 py-5">
+              <legend className="sr-only">What the file contains</legend>
+              <p className="text-[15px] font-medium text-ink">Output</p>
+              <div className="mt-3 space-y-2.5">
+                <Radio
+                  name="export-kind"
+                  value="page"
+                  label="Full page"
+                  hint="A complete .html with styles inside, opens anywhere"
+                  checked={exportKind === "page"}
+                  onChange={setExportKind}
+                />
+                <Radio
+                  name="export-kind"
+                  value="fragment"
+                  label="Body only"
+                  hint="Just the notebook markup, for pasting into a site"
+                  checked={exportKind === "fragment"}
+                  onChange={setExportKind}
+                />
+              </div>
+            </fieldset>
+          ) : null}
+
           <div className="border-t border-line-soft px-6 py-5">
             <button
               type="button"
-              onClick={download}
+              onClick={mode === "pdf" ? download : downloadHtml}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-[20px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] hover:bg-brand-dark"
             >
-              Download PDF
+              {mode === "pdf" ? "Download PDF" : "Download HTML"}
               <ArrowMark />
             </button>
+            {mode === "html" ? (
+              <button
+                type="button"
+                onClick={() => void copyHtml()}
+                className="mt-3 w-full rounded-xl border border-line px-5 py-2.5 text-[15px] text-ink-soft hover:border-ink/40"
+              >
+                {copied ? "Copied" : "Copy HTML"}
+              </button>
+            ) : null}
+            {error ? (
+              <p className="mt-3 text-[13px] leading-snug text-[#9b2c2c]">{error}</p>
+            ) : null}
             <button
               type="button"
               onClick={reset}
@@ -360,6 +423,43 @@ function Toggle({
         aria-hidden="true"
         className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-line transition-colors peer-checked:bg-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"
       />
+    </label>
+  );
+}
+
+function Radio<T extends string>({
+  name,
+  value,
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  name: string;
+  value: T;
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 select-none">
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={() => onChange(value)}
+        className="peer sr-only"
+      />
+      <span
+        aria-hidden="true"
+        className="mt-[3px] flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-line peer-checked:border-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 after:size-2 after:rounded-full after:bg-brand after:opacity-0 peer-checked:after:opacity-100"
+      />
+      <span>
+        <span className="block text-[15px] font-medium text-ink">{label}</span>
+        <span className="block text-[13px] text-muted">{hint}</span>
+      </span>
     </label>
   );
 }

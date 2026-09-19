@@ -3,6 +3,7 @@ import Image from "next/image";
 import { site } from "@/lib/site";
 
 const nav = [
+  { href: "/ipynb-to-html", label: "To HTML" },
   { href: "/how-to-convert-jupyter-notebook-to-pdf", label: "How to" },
   { href: "/fix-nbconvert-pdf-error", label: "Fix errors" },
   { href: "/faq", label: "FAQ" },
@@ -16,7 +17,9 @@ export function SiteHeader() {
           {/* A 3x cut of logo.png for the 30px header slot; the full file is 93 KB and only the OG
               image needs it. */}
           <Image src="/logo-header.png" alt="" width={72} height={84} className="h-[30px] w-auto" priority />
-          <span className="text-[22px] font-bold tracking-tight text-ink">
+          {/* Four nav items plus the wordmark do not fit a 375px phone; the mark alone
+              identifies the site there, and the wordmark returns at 420px. */}
+          <span className="hidden text-[22px] font-bold tracking-tight text-ink min-[420px]:inline">
             ipynb<span className="text-brand">to</span>pdf
           </span>
         </Link>
@@ -30,7 +33,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <nav className="flex items-center gap-3 text-[14px] font-medium text-ink sm:hidden">
+          <nav className="flex items-center gap-3 text-[14px] font-medium whitespace-nowrap text-ink sm:hidden">
             {nav.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-brand">
                 {item.label}

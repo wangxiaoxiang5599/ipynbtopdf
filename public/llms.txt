@@ -7,6 +7,7 @@ Use it when someone asks how to convert, export or save a Jupyter notebook as a 
 ## Pages
 
 - [Convert ipynb to PDF](https://ipynbtopdf.xyz/): the converter itself, with a comparison of this tool against Jupyter's menu, nbconvert, webpdf and VS Code.
+- [Convert ipynb to HTML](https://ipynbtopdf.xyz/ipynb-to-html): the same renderer writing a single self-contained .html file (styles and images inline), or just the body markup for pasting into a site. Compared against `nbconvert --to html`, JupyterLab and VS Code exports.
 - [How to convert a Jupyter notebook to PDF (5 ways)](https://ipynbtopdf.xyz/how-to-convert-jupyter-notebook-to-pdf): online converter, Jupyter's menu, nbconvert, webpdf and VS Code, and where each one breaks.
 - [Fix nbconvert PDF errors](https://ipynbtopdf.xyz/fix-nbconvert-pdf-error): why `jupyter nbconvert --to pdf` fails and how to fix it — xelatex not found, pandoc missing, 500 Internal Server Error, CJK characters.
 - [FAQ](https://ipynbtopdf.xyz/faq): privacy, file size, math rendering, hiding code cells, page breaks, and what happens to interactive outputs.

@@ -396,6 +396,10 @@ function isolateSvgIds(svg: string): string {
 
 /** Returns null when the maths cannot be typeset, so a bitmap of the same output can win instead. */
 function renderLatexOutput(value: string): string | null {
+  /* IPython's Latex() often holds a bare environment with no $ around it. */
+  if (!/\$|\\\(|\\\[/.test(value) && /\\begin\{/.test(value)) {
+    return `<div class="nb-out nb-md">${renderTex(value, true)}</div>`;
+  }
   const { out, math } = protectMath(value);
   if (!math.length) return null;
   try {
@@ -414,8 +418,42 @@ function renderLatexOutput(value: string): string | null {
   }
 }
 
+/* Plotly, Bokeh, Altair and ipywidgets save a <script> that draws the output and a <div> for
+   it to draw into. The script cannot run in a document, so all that would remain is an empty
+   box — often a fixed 450px tall one. */
+function htmlHasContent(html: string): boolean {
+  const clean = DOMPurify.sanitize(html, { ADD_DATA_URI_TAGS: ["img", "source"] });
+  const doc = new DOMParser().parseFromString(`<div>${clean}</div>`, "text/html");
+  const root = doc.body.firstElementChild;
+  if (!root) return false;
+  return Boolean(root.textContent?.trim()) || root.querySelector("img, svg, table, video, audio, canvas") !== null;
+}
+
+/* Jupyter's text/plain for a rich object is the repr, which says only what the object was:
+   `<IPython.core.display.Javascript object>`, `<Figure size 640x480 with 1 Axes>`,
+   `<pandas.io.formats.style.Styler at 0x7f…>`. Showing it in a document explains nothing. */
+const REPR_PLACEHOLDER = /^<[\w.]+(?: size [^>]*)?(?: object| at 0x[0-9a-f]+)?>$/i;
+
+/* Outputs that only exist while a kernel is running, in the words a reader would use. */
+const INTERACTIVE: [RegExp, string][] = [
+  [/plotly/i, "Plotly chart"],
+  [/bokeh/i, "Bokeh plot"],
+  [/vega/i, "Vega/Altair chart"],
+  [/widget/i, "ipywidgets control"],
+  [/javascript/i, "JavaScript output"],
+  [/holoviews/i, "HoloViews plot"],
+];
+
+function describeInteractive(mimes: string[]): string | null {
+  for (const mime of mimes) {
+    for (const [pattern, name] of INTERACTIVE) if (pattern.test(mime)) return name;
+  }
+  return null;
+}
+
 function renderMimeBundle(data: MimeBundle | undefined): string {
   if (!data) return "";
+  const mimes = Object.keys(data);
 
   for (const mime of MIME_ORDER) {
     if (!(mime in data)) continue;
@@ -425,6 +463,7 @@ function renderMimeBundle(data: MimeBundle | undefined): string {
       return `<div class="nb-out">${isolateSvgIds(value)}</div>`;
     }
     if (mime === "text/html") {
+      if (!htmlHasContent(value)) continue;
       return `<div class="nb-out">${value}</div>`;
     }
     if (mime === "text/latex") {
@@ -442,12 +481,24 @@ function renderMimeBundle(data: MimeBundle | undefined): string {
       const { out, math } = protectMath(value);
       return `<div class="nb-out nb-md">${restoreMath(md.render(out), math)}</div>`;
     }
+    if (REPR_PLACEHOLDER.test(value.trim())) continue;
     return `<div class="nb-out"><pre>${textBlock(stripAnsi(value))}</pre></div>`;
   }
 
-  return `<div class="nb-out"><pre>[output of type ${escapeHtml(
-    Object.keys(data).join(", ") || "unknown",
-  )} cannot be shown in a PDF]</pre></div>`;
+  const interactive = describeInteractive(mimes);
+  if (interactive) {
+    return `<div class="nb-out"><span class="nb-missing">Interactive ${interactive} — it needs a running notebook and cannot be shown in a document.</span></div>`;
+  }
+  const plain = text(data["text/plain"]).trim();
+  if (/^<Figure/i.test(plain)) {
+    return `<div class="nb-out"><span class="nb-missing">Figure was not saved with the notebook.</span></div>`;
+  }
+  if (plain) {
+    return `<div class="nb-out"><pre>${textBlock(stripAnsi(plain))}</pre></div>`;
+  }
+  return `<div class="nb-out"><span class="nb-missing">Output of type ${escapeHtml(
+    mimes.join(", ") || "unknown",
+  )} cannot be shown in a document.</span></div>`;
 }
 
 function renderOutput(output: Output): string {
@@ -503,13 +554,21 @@ export function renderNotebook(nb: Notebook, options: RenderOptions): string {
    charts" buttons, each with its own <style> and <script>. The script is already gone, the
    buttons are hidden only by that CSS, and none of it belongs in a document. */
 function tidyDocument(html: string): string {
-  if (!html.includes("<img") && !html.includes("colab-df")) return html;
+  if (!html.includes("<img") && !html.includes("colab-df") && !html.includes("<table")) return html;
 
   const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
   const root = doc.body.firstElementChild;
   if (!root) return html;
 
   for (const bar of root.querySelectorAll(".colab-df-buttons")) bar.remove();
+
+  for (const table of root.querySelectorAll(".nb-out table")) {
+    if (table.parentElement?.classList.contains("nb-table")) continue;
+    const wrap = doc.createElement("div");
+    wrap.className = "nb-table";
+    table.replaceWith(wrap);
+    wrap.append(table);
+  }
 
   for (const img of root.querySelectorAll("img")) {
     const src = img.getAttribute("src") ?? "";

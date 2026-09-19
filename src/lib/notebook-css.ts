@@ -163,10 +163,28 @@ export const notebookCss = `
   padding: 2px 0;
 }
 
+/* KaTeX draws stretchy arrows and wide hats with its own tiny <svg>s, sized in em by its
+   stylesheet; forcing height: auto on those collapses them. */
 .nb-out img,
-.nb-out svg {
+.nb-out svg:not(.katex *) {
   max-width: 100%;
   height: auto;
+}
+
+/* Wide DataFrames scroll sideways on screen; for paper the Converter measures each one and
+   sets --nb-zoom so it shrinks to the page width instead of being cut off. */
+.nb-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media print {
+  .nb-table {
+    overflow: visible;
+  }
+  .nb-table table {
+    zoom: var(--nb-zoom, 1);
+  }
 }
 
 .nb-out-error {

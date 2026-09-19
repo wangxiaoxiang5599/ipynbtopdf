@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# renderer stress-test corpus (real-world notebooks, ~30 MB); see .stress/harness.js
+/.stress

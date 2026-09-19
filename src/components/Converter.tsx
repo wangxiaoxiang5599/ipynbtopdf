@@ -141,6 +141,18 @@ export function Converter({
     setScript(lib.notebookToScript(notebook, fileName, scriptOptions));
   }, [notebook, fileName, scriptOptions, mode]);
 
+  /* A4 with the @page margins leaves about 182 mm, 688 px at 96 dpi; Letter is a touch
+     wider. A table past that is zoomed down for print, never up. */
+  useEffect(() => {
+    const root = docRef.current;
+    if (!root) return;
+    const PRINT_WIDTH = 688;
+    for (const table of root.querySelectorAll<HTMLTableElement>(".nb-table table")) {
+      const width = table.scrollWidth;
+      table.style.setProperty("--nb-zoom", width > PRINT_WIDTH ? String(PRINT_WIDTH / width) : "1");
+    }
+  }, [html]);
+
   /* Notebooks link images that live on the open web, and old ones point at URLs that died
      years ago. A broken-image icon printed into a PDF helps nobody. */
   useEffect(() => {

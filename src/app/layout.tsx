@@ -58,12 +58,25 @@ const siteJsonLd = [
   },
 ];
 
+/* AdSense's site-verification loader. The reviewer looks for this exact tag in the served
+   HTML of every page, so it is a plain <script> in <head> rather than next/script, which
+   would inject it on the client. async, so it never blocks the first paint. Ad units come
+   later, once the site is approved. */
+const ADSENSE_CLIENT = "ca-pub-6243042545068232";
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${sans.variable} ${mono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"

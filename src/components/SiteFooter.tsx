@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
-import { tools } from "@/components/SiteHeader";
+import { tools } from "@/lib/nav";
 
 const columns = [
   { title: "Tools", links: tools },

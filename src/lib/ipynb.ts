@@ -29,7 +29,7 @@ type Output =
   | { output_type: "display_data"; data?: MimeBundle }
   | { output_type: "error"; ename?: string; evalue?: string; traceback?: string[] };
 
-type Cell = {
+export type NotebookCell = {
   cell_type: "markdown" | "code" | "raw";
   source?: Source;
   outputs?: Output[];
@@ -37,8 +37,10 @@ type Cell = {
   attachments?: Record<string, MimeBundle>;
 };
 
+type Cell = NotebookCell;
+
 export type Notebook = {
-  cells?: Cell[];
+  cells?: NotebookCell[];
   metadata?: {
     language_info?: { name?: string };
     kernelspec?: { language?: string; display_name?: string };
@@ -160,10 +162,14 @@ export function notebookStats(nb: Notebook): NotebookStats {
   };
 }
 
-function notebookLanguage(nb: Notebook): string {
+export function notebookLanguage(nb: Notebook): string {
   return (
     nb.metadata?.language_info?.name ?? nb.metadata?.kernelspec?.language ?? "python"
   );
+}
+
+export function cellText(source: Source | undefined): string {
+  return text(source);
 }
 
 function text(source: Source | undefined): string {
@@ -302,6 +308,13 @@ function renderMarkdownCell(cell: Cell): string {
   return `<div class="nb-md">${restoreMath(md.render(out), math)}</div>`;
 }
 
+/** Source shown as it is when highlight.js has no grammar for the kernel's language. */
+export function highlightCode(code: string, language: string): string {
+  return hljs.getLanguage(language)
+    ? hljs.highlight(code, { language, ignoreIllegals: true }).value
+    : escapeHtml(code);
+}
+
 function renderCodeCell(cell: Cell, language: string, options: RenderOptions): string {
   const code = text(cell.source);
   if (!code.trim() && !(cell.outputs ?? []).length) return "";
@@ -309,9 +322,7 @@ function renderCodeCell(cell: Cell, language: string, options: RenderOptions): s
   const parts: string[] = [];
 
   if (options.showCode && code.trim()) {
-    const highlighted = hljs.getLanguage(language)
-      ? hljs.highlight(code, { language, ignoreIllegals: true }).value
-      : escapeHtml(code);
+    const highlighted = highlightCode(code, language);
     const prompt =
       options.showPrompts && cell.execution_count != null
         ? `<div class="nb-prompt">In [${cell.execution_count}]</div>`

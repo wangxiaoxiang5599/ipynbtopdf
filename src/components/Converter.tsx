@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Notebook, NotebookStats, RenderOptions } from "@/lib/ipynb";
 import { downloadText, fragmentHtml, standaloneHtml, type HtmlExportKind } from "@/lib/export-html";
+import { defaultScriptOptions, type Script, type ScriptOptions } from "@/lib/script-options";
 
 type Lib = typeof import("@/lib/ipynb");
+type ScriptLib = typeof import("@/lib/script");
 
 const defaultOptions: RenderOptions = {
   showCode: true,
@@ -14,12 +16,13 @@ const defaultOptions: RenderOptions = {
 
 const GUIDE_SEEN = "ipynbtopdf.guide-seen";
 
-/* One component serves both tool pages. Everything up to the rendered preview is identical;
-   the mode only decides what the sidebar's buttons do with that preview. */
-export type ConverterMode = "pdf" | "html";
+/* One component serves every tool page. Opening the file is identical; the mode decides what
+   the preview shows (a rendered document, or a script) and what the sidebar does with it. */
+export type ConverterMode = "pdf" | "html" | "script";
 
 export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
   const libRef = useRef<Lib | null>(null);
+  const scriptLibRef = useRef<ScriptLib | null>(null);
   const docRef = useRef<HTMLDivElement | null>(null);
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [stats, setStats] = useState<NotebookStats | null>(null);
@@ -31,6 +34,8 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
   const [error, setError] = useState("");
   const [showGuide, setShowGuide] = useState(false);
   const [exportKind, setExportKind] = useState<HtmlExportKind>("page");
+  const [scriptOptions, setScriptOptions] = useState<ScriptOptions>(defaultScriptOptions);
+  const [script, setScript] = useState<Script | null>(null);
   const [copied, setCopied] = useState(false);
 
   const loadFile = useCallback(async (file: File) => {
@@ -38,15 +43,18 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     setError("");
     try {
       const lib = (libRef.current ??= await import("@/lib/ipynb"));
+      if (mode === "script") scriptLibRef.current ??= await import("@/lib/script");
       const nb = lib.parseNotebook(await file.text());
       setNotebook(nb);
       setStats(lib.notebookStats(nb));
       setFileName(file.name);
       setOptions(defaultOptions);
+      setScriptOptions(defaultScriptOptions);
     } catch (cause) {
       setNotebook(null);
       setStats(null);
       setHtml("");
+      setScript(null);
       setError(
         cause instanceof SyntaxError
           ? "That file isn't valid JSON, so it can't be read as a notebook."
@@ -57,13 +65,19 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     } finally {
       setBusy(false);
     }
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     const lib = libRef.current;
-    if (!lib || !notebook) return;
+    if (!lib || !notebook || mode === "script") return;
     setHtml(lib.renderNotebook(notebook, options));
-  }, [notebook, options]);
+  }, [notebook, options, mode]);
+
+  useEffect(() => {
+    const lib = scriptLibRef.current;
+    if (!lib || !notebook || mode !== "script") return;
+    setScript(lib.notebookToScript(notebook, fileName, scriptOptions));
+  }, [notebook, fileName, scriptOptions, mode]);
 
   /* Notebooks link images that live on the open web, and old ones point at URLs that died
      years ago. A broken-image icon printed into a PDF helps nobody. */
@@ -164,9 +178,13 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
 
   const downloadHtml = () => downloadText(`${baseName}.html`, exportHtml());
 
-  const copyHtml = async () => {
+  const downloadScript = () => {
+    if (script) downloadText(`${baseName}.${script.extension}`, script.code, "text/plain");
+  };
+
+  const copyText = async () => {
     try {
-      await navigator.clipboard.writeText(exportHtml());
+      await navigator.clipboard.writeText(mode === "script" ? (script?.code ?? "") : exportHtml());
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -178,9 +196,18 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     setNotebook(null);
     setStats(null);
     setHtml("");
+    setScript(null);
     setFileName("");
     setError("");
   };
+
+  const modeLabel = { pdf: "PDF options", html: "HTML options", script: "Script options" }[mode];
+  const downloadLabel = {
+    pdf: "Download PDF",
+    html: "Download HTML",
+    script: `Download .${script?.extension ?? "py"}`,
+  }[mode];
+  const onDownload = { pdf: download, html: downloadHtml, script: downloadScript }[mode];
 
   const dropOverlay = dragging ? (
     <div className="print-hide pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-brand/90 text-center text-white">
@@ -241,25 +268,71 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_300px] print:block">
         <div className="print-area order-2 rounded-2xl border border-line bg-surface p-8 sm:p-10 lg:order-1">
-          <div
-            id="nb-doc"
-            ref={docRef}
-            className="nb-doc"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          {mode === "script" ? (
+            <pre className="nb-script">
+              <code dangerouslySetInnerHTML={{ __html: script?.html ?? "" }} />
+            </pre>
+          ) : (
+            <div
+              id="nb-doc"
+              ref={docRef}
+              className="nb-doc"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          )}
         </div>
 
         <aside className="print-hide order-1 rounded-2xl border border-line bg-surface lg:sticky lg:top-[84px] lg:order-2">
           <div className="border-b border-line-soft px-6 py-5">
-            <h2 className="text-[20px] font-semibold text-ink">
-              {mode === "pdf" ? "PDF options" : "HTML options"}
-            </h2>
+            <h2 className="text-[20px] font-semibold text-ink">{modeLabel}</h2>
             <p className="mt-2 truncate font-mono text-[13px] text-ink-soft" title={fileName}>
               {fileName}
             </p>
-            {stats ? <p className="text-[13px] text-muted">{stats.cells} cells</p> : null}
+            {stats ? (
+              <p className="text-[13px] text-muted">
+                {mode === "script" && script
+                  ? `${plural(stats.codeCells, "code cell")} · ${script.languageName} → .${script.extension}`
+                  : plural(stats.cells, "cell")}
+              </p>
+            ) : null}
           </div>
 
+          {mode === "script" ? (
+            <div className="divide-y divide-line-soft">
+              <RadioGroup
+                title="Cell markers"
+                name="markers"
+                value={scriptOptions.markers}
+                onChange={(markers) => setScriptOptions((o) => ({ ...o, markers }))}
+                choices={[
+                  { value: "percent", label: "# %%", hint: "VS Code, Spyder and PyCharm run these as cells", mono: true },
+                  { value: "nbconvert", label: "# In[1]:", hint: "What nbconvert --to script writes", mono: true },
+                  { value: "none", label: "None", hint: "Cells run together, nothing between them" },
+                ]}
+              />
+              <RadioGroup
+                title="Markdown cells"
+                name="markdown"
+                value={scriptOptions.markdown}
+                onChange={(markdown) => setScriptOptions((o) => ({ ...o, markdown }))}
+                choices={[
+                  { value: "comment", label: "Keep as comments", hint: "Headings and notes stay in the file" },
+                  { value: "drop", label: "Drop", hint: "Code only" },
+                ]}
+              />
+              <RadioGroup
+                title="Magics and !shell lines"
+                name="magics"
+                value={scriptOptions.magics}
+                onChange={(magics) => setScriptOptions((o) => ({ ...o, magics }))}
+                choices={[
+                  { value: "comment", label: "Comment out", hint: "%matplotlib and !pip stay visible, the script still runs" },
+                  { value: "remove", label: "Remove", hint: "Gone from the file" },
+                  { value: "keep", label: "Keep as written", hint: "For running inside IPython" },
+                ]}
+              />
+            </div>
+          ) : (
           <div className="space-y-4 px-6 py-5">
             <Toggle
               label="Code cells"
@@ -280,6 +353,7 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
               onChange={(showPrompts) => setOptions((o) => ({ ...o, showPrompts }))}
             />
           </div>
+          )}
 
           {mode === "html" ? (
             <fieldset className="border-t border-line-soft px-6 py-5">
@@ -309,19 +383,19 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
           <div className="border-t border-line-soft px-6 py-5">
             <button
               type="button"
-              onClick={mode === "pdf" ? download : downloadHtml}
+              onClick={onDownload}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-[20px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] hover:bg-brand-dark"
             >
-              {mode === "pdf" ? "Download PDF" : "Download HTML"}
+              {downloadLabel}
               <ArrowMark />
             </button>
-            {mode === "html" ? (
+            {mode !== "pdf" ? (
               <button
                 type="button"
-                onClick={() => void copyHtml()}
+                onClick={() => void copyText()}
                 className="mt-3 w-full rounded-xl border border-line px-5 py-2.5 text-[15px] text-ink-soft hover:border-ink/40"
               >
-                {copied ? "Copied" : "Copy HTML"}
+                {copied ? "Copied" : mode === "html" ? "Copy HTML" : "Copy code"}
               </button>
             ) : null}
             {error ? (
@@ -427,11 +501,51 @@ function Toggle({
   );
 }
 
+function plural(count: number, noun: string): string {
+  return `${count} ${noun}${count === 1 ? "" : "s"}`;
+}
+
+function RadioGroup<T extends string>({
+  title,
+  name,
+  value,
+  onChange,
+  choices,
+}: {
+  title: string;
+  name: string;
+  value: T;
+  onChange: (value: T) => void;
+  choices: { value: T; label: string; hint: string; mono?: boolean }[];
+}) {
+  return (
+    <fieldset className="px-6 py-5">
+      <legend className="sr-only">{title}</legend>
+      <p className="text-[15px] font-medium text-ink">{title}</p>
+      <div className="mt-3 space-y-2.5">
+        {choices.map((choice) => (
+          <Radio
+            key={choice.value}
+            name={name}
+            value={choice.value}
+            label={choice.label}
+            hint={choice.hint}
+            mono={choice.mono}
+            checked={value === choice.value}
+            onChange={onChange}
+          />
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 function Radio<T extends string>({
   name,
   value,
   label,
   hint,
+  mono,
   checked,
   onChange,
 }: {
@@ -439,6 +553,7 @@ function Radio<T extends string>({
   value: T;
   label: string;
   hint: string;
+  mono?: boolean;
   checked: boolean;
   onChange: (value: T) => void;
 }) {
@@ -457,7 +572,15 @@ function Radio<T extends string>({
         className="mt-[3px] flex size-[18px] shrink-0 items-center justify-center rounded-full border-2 border-line peer-checked:border-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand/40 after:size-2 after:rounded-full after:bg-brand after:opacity-0 peer-checked:after:opacity-100"
       />
       <span>
-        <span className="block text-[15px] font-medium text-ink">{label}</span>
+        <span
+          className={
+            mono
+              ? "block font-mono text-[14px] font-medium text-ink"
+              : "block text-[15px] font-medium text-ink"
+          }
+        >
+          {label}
+        </span>
         <span className="block text-[13px] text-muted">{hint}</span>
       </span>
     </label>

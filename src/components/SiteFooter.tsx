@@ -1,14 +1,9 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { tools } from "@/components/SiteHeader";
 
 const columns = [
-  {
-    title: "Tools",
-    links: [
-      { href: "/", label: "ipynb to PDF" },
-      { href: "/ipynb-to-html", label: "ipynb to HTML" },
-    ],
-  },
+  { title: "Tools", links: tools },
   {
     title: "Guides",
     links: [

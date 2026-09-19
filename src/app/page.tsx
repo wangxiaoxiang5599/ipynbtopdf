@@ -121,8 +121,8 @@ const faqs = [
     a: "Because the browser's print engine is the best PDF writer that exists without a server. Choose Save as PDF as the destination; the file is written straight to disk with real, selectable text.",
   },
   {
-    q: "Can I get HTML instead of a PDF?",
-    a: "Yes. The ipynb to HTML page uses the same renderer and writes a single .html file with the styles inside, or just the body markup for pasting into a site.",
+    q: "Can I get HTML or a .py script instead of a PDF?",
+    a: "Yes. The ipynb to HTML page uses the same renderer and writes a single .html file with the styles inside. The ipynb to PY page writes the code cells out as a script, with magics commented out so it runs.",
   },
   {
     q: "Can I still select text in the PDF?",

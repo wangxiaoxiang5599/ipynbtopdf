@@ -204,6 +204,17 @@ export const notebookCss = `
   padding: 4px 10px;
 }
 
+/* The script preview on /ipynb-to-py: one code block standing in for the whole document. */
+.nb-script {
+  font-family: var(--font-mono-code), ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 4;
+  color: var(--ink);
+}
+
 /* highlight.js tokens, tuned warm */
 .hljs-comment,
 .hljs-quote {

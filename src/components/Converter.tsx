@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Notebook, NotebookStats, RenderOptions } from "@/lib/ipynb";
 import { downloadText, fragmentHtml, standaloneHtml, type HtmlExportKind } from "@/lib/export-html";
 import { defaultScriptOptions, type Script, type ScriptOptions } from "@/lib/script-options";
+import { setPendingFile, takePendingFile } from "@/lib/handoff";
+import { fetchNotebookFile } from "@/lib/fetch-notebook";
 
 type Lib = typeof import("@/lib/ipynb");
 type ScriptLib = typeof import("@/lib/script");
@@ -17,13 +20,31 @@ const defaultOptions: RenderOptions = {
 const GUIDE_SEEN = "ipynbtopdf.guide-seen";
 
 /* One component serves every tool page. Opening the file is identical; the mode decides what
-   the preview shows (a rendered document, or a script) and what the sidebar does with it. */
-export type ConverterMode = "pdf" | "html" | "script";
+   the preview shows (a rendered document, or a script) and what the sidebar does with it.
+   "view" is the reader: no export of its own, an outline instead, and buttons that carry the
+   open file to the other three. */
+export type ConverterMode = "pdf" | "html" | "script" | "view";
+
+type OutlineEntry = { id: string; level: number; text: string };
+
+const saveAs = [
+  { href: "/", label: "PDF" },
+  { href: "/ipynb-to-html", label: "HTML" },
+  { href: "/ipynb-to-py", label: "Python script" },
+];
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
+  const router = useRouter();
   const libRef = useRef<Lib | null>(null);
   const scriptLibRef = useRef<ScriptLib | null>(null);
   const docRef = useRef<HTMLDivElement | null>(null);
+  const fileRef = useRef<File | null>(null);
   const [notebook, setNotebook] = useState<Notebook | null>(null);
   const [stats, setStats] = useState<NotebookStats | null>(null);
   const [fileName, setFileName] = useState("");
@@ -37,6 +58,9 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
   const [scriptOptions, setScriptOptions] = useState<ScriptOptions>(defaultScriptOptions);
   const [script, setScript] = useState<Script | null>(null);
   const [copied, setCopied] = useState(false);
+  const [outline, setOutline] = useState<OutlineEntry[]>([]);
+  const [link, setLink] = useState("");
+  const [fileSize, setFileSize] = useState(0);
 
   const loadFile = useCallback(async (file: File) => {
     setBusy(true);
@@ -45,6 +69,8 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
       const lib = (libRef.current ??= await import("@/lib/ipynb"));
       if (mode === "script") scriptLibRef.current ??= await import("@/lib/script");
       const nb = lib.parseNotebook(await file.text());
+      fileRef.current = file;
+      setFileSize(file.size);
       setNotebook(nb);
       setStats(lib.notebookStats(nb));
       setFileName(file.name);
@@ -67,11 +93,38 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     }
   }, [mode]);
 
+  /* A file sent over from the viewer's "Save as" buttons. Taken inside the timer, not the
+     effect body: development Strict Mode runs the effect, cleans up and runs it again, and a
+     file taken by the first run would be gone by the second. */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const file = takePendingFile();
+      if (file) void loadFile(file);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [loadFile]);
+
   useEffect(() => {
     const lib = libRef.current;
     if (!lib || !notebook || mode === "script") return;
     setHtml(lib.renderNotebook(notebook, options));
   }, [notebook, options, mode]);
+
+  /* The outline is read off the rendered headings rather than the Markdown source, so it
+     shows what the reader sees — after inline code, links and maths have been rendered. */
+  useEffect(() => {
+    const root = docRef.current;
+    if (!root || mode !== "view") return;
+    const headings = root.querySelectorAll<HTMLHeadingElement>(".nb-md h1, .nb-md h2, .nb-md h3");
+    const entries: OutlineEntry[] = [];
+    headings.forEach((heading, index) => {
+      const id = `nb-h-${index}`;
+      heading.id = id;
+      const text = heading.textContent?.trim() ?? "";
+      if (text) entries.push({ id, level: Number(heading.tagName[1]), text });
+    });
+    setOutline(entries);
+  }, [html, mode]);
 
   useEffect(() => {
     const lib = scriptLibRef.current;
@@ -108,6 +161,27 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     const response = await fetch("/sample-notebook.ipynb");
     const blob = await response.blob();
     void loadFile(new File([blob], "sample-notebook.ipynb"));
+  };
+
+  const openLink = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await loadFile(await fetchNotebookFile(link));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "That link could not be opened.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const sendTo = (href: string) => {
+    if (fileRef.current) setPendingFile(fileRef.current);
+    router.push(href);
+  };
+
+  const jumpTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   /* The whole window is the drop target, so a file dragged anywhere onto the page opens it.
@@ -197,17 +271,26 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     setStats(null);
     setHtml("");
     setScript(null);
+    setOutline([]);
     setFileName("");
     setError("");
+    fileRef.current = null;
   };
 
-  const modeLabel = { pdf: "PDF options", html: "HTML options", script: "Script options" }[mode];
+  const modeLabel = {
+    pdf: "PDF options",
+    html: "HTML options",
+    script: "Script options",
+    view: "Notebook",
+  }[mode];
   const downloadLabel = {
     pdf: "Download PDF",
     html: "Download HTML",
     script: `Download .${script?.extension ?? "py"}`,
+    view: "",
   }[mode];
-  const onDownload = { pdf: download, html: downloadHtml, script: downloadScript }[mode];
+  const onDownload = { pdf: download, html: downloadHtml, script: downloadScript, view: reset }[mode];
+  const kernel = notebook?.metadata?.kernelspec?.display_name ?? stats?.language ?? "";
 
   const dropOverlay = dragging ? (
     <div className="print-hide pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-brand/90 text-center text-white">
@@ -235,9 +318,41 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
             }}
           />
           <UploadMark size={22} color="#fff" />
-          {busy ? "Opening…" : "Select .ipynb file"}
+          {busy ? "Opening…" : mode === "view" ? "Open .ipynb file" : "Select .ipynb file"}
         </label>
         <p className="mt-4 text-[14px] text-muted">or drop the notebook anywhere on this page</p>
+
+        {mode === "view" ? (
+          <form
+            className="mx-auto mt-8 flex max-w-xl gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void openLink();
+            }}
+          >
+            <input
+              type="url"
+              value={link}
+              onChange={(event) => setLink(event.target.value)}
+              placeholder="https://github.com/user/repo/blob/main/notebook.ipynb"
+              aria-label="Link to a notebook"
+              className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-3 text-[15px] text-ink placeholder:text-muted focus:border-brand focus:outline-none"
+            />
+            <button
+              type="submit"
+              disabled={busy || !link.trim()}
+              className="shrink-0 rounded-xl border border-line px-5 py-3 text-[15px] font-medium text-ink hover:border-ink/40 disabled:opacity-50"
+            >
+              Open link
+            </button>
+          </form>
+        ) : null}
+        {mode === "view" ? (
+          <p className="mt-3 text-[13px] text-muted">
+            GitHub, Gist or any public .ipynb address. Your browser fetches it; this site never
+            sees it.
+          </p>
+        ) : null}
 
         {error ? (
           <p className="mx-auto mt-6 max-w-md rounded-lg border border-[#f3d0d0] bg-[#fdf2f2] px-4 py-3 text-[15px] text-[#9b2c2c]">
@@ -292,10 +407,32 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
               <p className="text-[13px] text-muted">
                 {mode === "script" && script
                   ? `${plural(stats.codeCells, "code cell")} · ${script.languageName} → .${script.extension}`
-                  : plural(stats.cells, "cell")}
+                  : mode === "view"
+                    ? `${kernel} · ${plural(stats.cells, "cell")} · ${formatSize(fileSize)}`
+                    : plural(stats.cells, "cell")}
               </p>
             ) : null}
           </div>
+
+          {mode === "view" && outline.length ? (
+            <nav aria-label="Outline" className="border-b border-line-soft px-6 py-5">
+              <p className="text-[15px] font-medium text-ink">Outline</p>
+              <ul className="mt-3 max-h-64 space-y-1 overflow-y-auto text-[14px]">
+                {outline.map((entry) => (
+                  <li key={entry.id} style={{ paddingLeft: `${(entry.level - 1) * 12}px` }}>
+                    <button
+                      type="button"
+                      onClick={() => jumpTo(entry.id)}
+                      className="block w-full truncate text-left text-ink-soft hover:text-brand-dark"
+                      title={entry.text}
+                    >
+                      {entry.text}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ) : null}
 
           {mode === "script" ? (
             <div className="divide-y divide-line-soft">
@@ -380,16 +517,41 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
             </fieldset>
           ) : null}
 
+          {mode === "view" ? (
+            <div className="border-t border-line-soft px-6 py-5">
+              <p className="text-[15px] font-medium text-ink">Save as</p>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {saveAs.map((target, index) => (
+                  <button
+                    key={target.href}
+                    type="button"
+                    onClick={() => sendTo(target.href)}
+                    className={
+                      index === 0
+                        ? "rounded-xl bg-brand px-3 py-3 text-[15px] font-medium text-white hover:bg-brand-dark"
+                        : "rounded-xl border border-line px-3 py-3 text-[15px] font-medium text-ink hover:border-ink/40"
+                    }
+                  >
+                    {target.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-[12px] text-muted">Opens the converter with this notebook already loaded.</p>
+            </div>
+          ) : null}
+
           <div className="border-t border-line-soft px-6 py-5">
-            <button
-              type="button"
-              onClick={onDownload}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-[20px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] hover:bg-brand-dark"
-            >
-              {downloadLabel}
-              <ArrowMark />
-            </button>
-            {mode !== "pdf" ? (
+            {mode !== "view" ? (
+              <button
+                type="button"
+                onClick={onDownload}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-[20px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] hover:bg-brand-dark"
+              >
+                {downloadLabel}
+                <ArrowMark />
+              </button>
+            ) : null}
+            {mode !== "pdf" && mode !== "view" ? (
               <button
                 type="button"
                 onClick={() => void copyText()}
@@ -404,9 +566,9 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
             <button
               type="button"
               onClick={reset}
-              className="mt-3 w-full rounded-xl border border-line px-5 py-2.5 text-[15px] text-ink-soft hover:border-ink/40"
+              className={`w-full rounded-xl border border-line px-5 py-2.5 text-[15px] text-ink-soft hover:border-ink/40${mode === "view" ? "" : " mt-3"}`}
             >
-              Choose another file
+              {mode === "view" ? "Open another notebook" : "Choose another file"}
             </button>
           </div>
         </aside>

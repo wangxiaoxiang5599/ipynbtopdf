@@ -33,6 +33,7 @@ export const notebookCss = `
   line-height: 1.3;
   margin: 1.25em 0 0.5em;
   break-after: avoid;
+  scroll-margin-top: 80px;
 }
 
 .nb-md h1 {

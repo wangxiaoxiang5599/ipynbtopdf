@@ -130,7 +130,31 @@ export type RenderOptions = {
   showCode: boolean;
   showOutputs: boolean;
   showPrompts: boolean;
+  /** Keep the head and tail of text outputs longer than FOLD_AT lines; pip logs and epoch
+      printouts otherwise run to pages. */
+  foldOutputs: boolean;
 };
+
+const FOLD_AT = 40;
+const FOLD_HEAD = 25;
+const FOLD_TAIL = 10;
+
+/* Module state for the duration of one renderNotebook call, so the output renderers do
+   not need the options threaded through every signature. */
+let folding = false;
+
+/** Escaped text for a <pre>, folded when long. The marker is inserted after escaping so it
+    can carry a class the stylesheet can mute. */
+function textBlock(value: string): string {
+  const lines = value.replace(/\n$/, "").split("\n");
+  if (!folding || lines.length <= FOLD_AT) return escapeHtml(value);
+  const hidden = lines.length - FOLD_HEAD - FOLD_TAIL;
+  return [
+    escapeHtml(lines.slice(0, FOLD_HEAD).join("\n")),
+    `<span class="nb-fold">⋯ ${hidden} more lines hidden ⋯</span>`,
+    escapeHtml(lines.slice(-FOLD_TAIL).join("\n")),
+  ].join("\n");
+}
 
 export type NotebookStats = {
   cells: number;
@@ -418,7 +442,7 @@ function renderMimeBundle(data: MimeBundle | undefined): string {
       const { out, math } = protectMath(value);
       return `<div class="nb-out nb-md">${restoreMath(md.render(out), math)}</div>`;
     }
-    return `<div class="nb-out"><pre>${escapeHtml(stripAnsi(value))}</pre></div>`;
+    return `<div class="nb-out"><pre>${textBlock(stripAnsi(value))}</pre></div>`;
   }
 
   return `<div class="nb-out"><pre>[output of type ${escapeHtml(
@@ -429,7 +453,7 @@ function renderMimeBundle(data: MimeBundle | undefined): string {
 function renderOutput(output: Output): string {
   if (output.output_type === "stream") {
     const stderr = output.name === "stderr";
-    return `<div class="nb-out${stderr ? " nb-out-stderr" : ""}"><pre>${escapeHtml(
+    return `<div class="nb-out${stderr ? " nb-out-stderr" : ""}"><pre>${textBlock(
       applyCarriageReturns(stripAnsi(text(output.text))),
     )}</pre></div>`;
   }
@@ -437,9 +461,7 @@ function renderOutput(output: Output): string {
   if (output.output_type === "error") {
     const body = (output.traceback ?? []).map(stripAnsi).join("\n").trim();
     const fallback = `${output.ename ?? "Error"}: ${output.evalue ?? ""}`;
-    return `<div class="nb-out nb-out-error"><pre>${escapeHtml(
-      body || fallback,
-    )}</pre></div>`;
+    return `<div class="nb-out nb-out-error"><pre>${textBlock(body || fallback)}</pre></div>`;
   }
 
   return renderMimeBundle(output.data);
@@ -447,6 +469,7 @@ function renderOutput(output: Output): string {
 
 export function renderNotebook(nb: Notebook, options: RenderOptions): string {
   svgSerial = 0;
+  folding = options.foldOutputs;
   const language = notebookLanguage(nb);
   const body = (nb.cells ?? [])
     .map((cell) => {
@@ -467,18 +490,26 @@ export function renderNotebook(nb: Notebook, options: RenderOptions): string {
     ADD_DATA_URI_TAGS: ["img", "source"],
   });
 
-  return flagUnresolvableImages(clean);
+  return tidyDocument(clean);
 }
 
-/* Markdown cells often point at a file sitting next to the notebook (files/logo.png). Only
+/* Two fixes that need a DOM walk rather than string work.
+
+   Markdown cells often point at a file sitting next to the notebook (files/logo.png). Only
    the .ipynb was opened, so that image can never load — left alone it both requests a path
-   on this site and prints a broken-image icon. */
-function flagUnresolvableImages(html: string): string {
-  if (!html.includes("<img")) return html;
+   on this site and prints a broken-image icon.
+
+   Colab wraps every DataFrame in a toolbar of "convert to interactive table" / "suggest
+   charts" buttons, each with its own <style> and <script>. The script is already gone, the
+   buttons are hidden only by that CSS, and none of it belongs in a document. */
+function tidyDocument(html: string): string {
+  if (!html.includes("<img") && !html.includes("colab-df")) return html;
 
   const doc = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
   const root = doc.body.firstElementChild;
   if (!root) return html;
+
+  for (const bar of root.querySelectorAll(".colab-df-buttons")) bar.remove();
 
   for (const img of root.querySelectorAll("img")) {
     const src = img.getAttribute("src") ?? "";

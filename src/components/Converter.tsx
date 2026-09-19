@@ -15,6 +15,7 @@ const defaultOptions: RenderOptions = {
   showCode: true,
   showOutputs: true,
   showPrompts: false,
+  foldOutputs: true,
 };
 
 const GUIDE_SEEN = "ipynbtopdf.guide-seen";
@@ -39,7 +40,15 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
+/* "colab" changes only the empty state: the visitor is in Colab with no file yet, so the
+   first thing shown is how to get one, and a link field for Colab's GitHub-backed URLs. */
+export function Converter({
+  mode = "pdf",
+  variant,
+}: {
+  mode?: ConverterMode;
+  variant?: "colab";
+}) {
   const router = useRouter();
   const libRef = useRef<Lib | null>(null);
   const scriptLibRef = useRef<ScriptLib | null>(null);
@@ -302,10 +311,13 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
     </div>
   ) : null;
 
+  const showLink = mode === "view" || variant === "colab";
+
   if (!notebook) {
     return (
       <div className="text-center">
         {dropOverlay}
+        {variant === "colab" ? <ColabSteps /> : null}
         <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl bg-brand px-12 py-6 text-[24px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] transition-colors hover:bg-brand-dark">
           <input
             type="file"
@@ -322,7 +334,7 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
         </label>
         <p className="mt-4 text-[14px] text-muted">or drop the notebook anywhere on this page</p>
 
-        {mode === "view" ? (
+        {showLink ? (
           <form
             className="mx-auto mt-8 flex max-w-xl gap-2"
             onSubmit={(event) => {
@@ -334,7 +346,11 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
               type="url"
               value={link}
               onChange={(event) => setLink(event.target.value)}
-              placeholder="https://github.com/user/repo/blob/main/notebook.ipynb"
+              placeholder={
+                variant === "colab"
+                  ? "https://colab.research.google.com/github/user/repo/blob/main/nb.ipynb"
+                  : "https://github.com/user/repo/blob/main/notebook.ipynb"
+              }
               aria-label="Link to a notebook"
               className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-4 py-3 text-[15px] text-ink placeholder:text-muted focus:border-brand focus:outline-none"
             />
@@ -347,10 +363,11 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
             </button>
           </form>
         ) : null}
-        {mode === "view" ? (
+        {showLink ? (
           <p className="mt-3 text-[13px] text-muted">
-            GitHub, Gist or any public .ipynb address. Your browser fetches it; this site never
-            sees it.
+            {variant === "colab"
+              ? "Works for Colab links that open a GitHub notebook. Drive links need the download step above."
+              : "GitHub, Gist or any public .ipynb address. Your browser fetches it; this site never sees it."}
           </p>
         ) : null}
 
@@ -489,6 +506,12 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
               checked={options.showPrompts}
               onChange={(showPrompts) => setOptions((o) => ({ ...o, showPrompts }))}
             />
+            <Toggle
+              label="Fold long outputs"
+              hint="Logs over 40 lines keep their first 25 and last 10"
+              checked={options.foldOutputs}
+              onChange={(foldOutputs) => setOptions((o) => ({ ...o, foldOutputs }))}
+            />
           </div>
           )}
 
@@ -572,6 +595,53 @@ export function Converter({ mode = "pdf" }: { mode?: ConverterMode }) {
             </button>
           </div>
         </aside>
+      </div>
+    </div>
+  );
+}
+
+/* The Colab File menu, drawn rather than screenshotted so it stays crisp and matches the
+   site; the labels are Colab's own. */
+function ColabSteps() {
+  return (
+    <div className="mx-auto mb-10 grid max-w-3xl gap-5 text-left sm:grid-cols-2">
+      <div className="card">
+        <p className="flex items-center gap-3 text-[17px] font-medium text-ink">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-[15px] font-semibold text-white">
+            1
+          </span>
+          In Colab: File → Download → Download .ipynb
+        </p>
+        <div className="mt-4 flex gap-2 font-sans text-[13px]" aria-hidden="true">
+          <ul className="w-36 overflow-hidden rounded-lg border border-line bg-surface text-ink-soft">
+            <li className="px-3 py-1.5">New notebook</li>
+            <li className="px-3 py-1.5">Open notebook</li>
+            <li className="px-3 py-1.5">Save</li>
+            <li className="flex justify-between bg-brand px-3 py-1.5 font-medium text-white">
+              Download <span>▸</span>
+            </li>
+            <li className="px-3 py-1.5">Print</li>
+          </ul>
+          <ul className="h-fit w-36 overflow-hidden rounded-lg border border-line bg-surface text-ink-soft">
+            <li className="bg-brand px-3 py-1.5 font-medium text-white">Download .ipynb</li>
+            <li className="px-3 py-1.5">Download .py</li>
+          </ul>
+        </div>
+        <p className="mt-3 text-[13px] text-muted">
+          Outputs are saved with the file, so run the cells you want in the PDF first.
+        </p>
+      </div>
+      <div className="card flex flex-col justify-center">
+        <p className="flex items-center gap-3 text-[17px] font-medium text-ink">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand text-[15px] font-semibold text-white">
+            2
+          </span>
+          Open that file here
+        </p>
+        <p className="mt-3 text-[14px] leading-relaxed text-muted">
+          Use the button below or drop the file anywhere on the page. It is rendered in your
+          browser and saved as a PDF from there. Nothing is uploaded.
+        </p>
       </div>
     </div>
   );

@@ -84,6 +84,8 @@ const sources = [
   {
     title: "Google Colab",
     body: "File → Download → Download .ipynb. Then drop that file here. Colab's own Print gives you a PDF of the browser window, with the sidebar in it.",
+    href: "/colab-to-pdf",
+    link: "Colab to PDF, step by step",
   },
   {
     title: "VS Code",
@@ -319,6 +321,11 @@ export default function Home() {
               <div key={item.title} className="card">
                 <h3 className="text-[20px] font-medium text-ink">{item.title}</h3>
                 <p className="mt-1.5 text-[14px] leading-relaxed text-muted">{item.body}</p>
+                {item.href ? (
+                  <Link href={item.href} className="mt-3 inline-block text-[14px] font-medium text-brand-dark hover:underline">
+                    {item.link}
+                  </Link>
+                ) : null}
               </div>
             ))}
           </div>

@@ -180,6 +180,13 @@ export const notebookCss = `
   color: #9b2c2c;
 }
 
+.nb-fold {
+  display: block;
+  color: var(--muted);
+  font-style: italic;
+  padding: 2px 0;
+}
+
 .nb-missing {
   display: inline-block;
   border: 1px dashed var(--line);

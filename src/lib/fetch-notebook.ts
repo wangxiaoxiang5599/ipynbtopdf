@@ -5,9 +5,23 @@
 
 const GITHUB_BLOB = /^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/i;
 const GIST = /^https?:\/\/gist\.github\.com\/([^/]+)\/([0-9a-f]+)\/?(?:#.*)?$/i;
+/* Colab opens GitHub notebooks at its own address with the repository path after /github/;
+   the file itself is still on GitHub. Its /drive/ addresses are Google Drive, which only the
+   signed-in owner can read, and no rewrite helps. */
+const COLAB_GITHUB = /^https?:\/\/colab\.research\.google\.com\/github\/([^/]+)\/([^/]+)\/blob\/(.+)$/i;
+const COLAB_DRIVE = /^https?:\/\/colab\.research\.google\.com\/(?:drive|notebook)/i;
+
+export function isDriveLink(input: string): boolean {
+  return COLAB_DRIVE.test(input.trim());
+}
 
 export function toRawUrl(input: string): string {
   const url = input.trim();
+  const colab = COLAB_GITHUB.exec(url);
+  if (colab) {
+    const [, user, repo, rest] = colab;
+    return `https://raw.githubusercontent.com/${user}/${repo}/${rest.split(/[?#]/)[0]}`;
+  }
   const blob = GITHUB_BLOB.exec(url);
   if (blob) {
     const [, user, repo, rest] = blob;
@@ -33,6 +47,11 @@ function nameFromUrl(url: string): string {
 export async function fetchNotebookFile(input: string): Promise<File> {
   if (!/^https?:\/\//i.test(input.trim())) {
     throw new Error("That doesn't look like a link. Paste the full address, starting with https://");
+  }
+  if (isDriveLink(input)) {
+    throw new Error(
+      "That notebook is on Google Drive, which only you can read. In Colab choose File \u2192 Download \u2192 Download .ipynb, then open that file here.",
+    );
   }
   const url = toRawUrl(input);
 

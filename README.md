@@ -13,6 +13,8 @@ npm install
 npm run dev
 ```
 
+Pushing to `master` deploys. After a deploy that adds or changes pages, `npm run indexnow` sends every sitemap URL to IndexNow (Bing and friends) so they recrawl right away; the key file it needs lives in `public/`.
+
 ## How the conversion works
 
 `src/lib/ipynb.ts` is the whole converter:

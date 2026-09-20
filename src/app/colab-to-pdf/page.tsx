@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 export const metadata: Metadata = {
   title: "Colab to PDF — convert a Google Colab notebook to PDF, no LaTeX",
   description:
-    "Save a Google Colab notebook as a PDF: download the .ipynb from Colab, open it here, hide the code if you like, and save. Runs in your browser — no upload, no TeX install, no cut-off outputs.",
+    "Save a Google Colab notebook as a PDF: download the .ipynb, open it here, hide the code if you like, and save. No upload, no TeX install, no cut-off outputs.",
   alternates: { canonical: "/colab-to-pdf" },
   openGraph: {
     title: "Colab to PDF — convert a Google Colab notebook to PDF, no LaTeX",

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
      it in the title; the H1 keeps the plain phrase people actually type. */
   title: "IPYNB to PDF Converter — free, in your browser, no upload",
   description:
-    "Convert .ipynb Jupyter notebooks to PDF in your browser. Keeps Markdown, code highlighting, LaTeX math, plots and tables. No upload, no account, no LaTeX. Open source.",
+    "Convert .ipynb Jupyter notebooks to PDF in your browser. Keeps Markdown, code highlighting, LaTeX math, plots and tables. No upload, no account, no LaTeX.",
   alternates: { canonical: "/" },
 };
 

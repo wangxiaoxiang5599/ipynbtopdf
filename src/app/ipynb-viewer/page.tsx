@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 export const metadata: Metadata = {
   title: "IPYNB Viewer — open and view Jupyter notebooks online, no upload",
   description:
-    "Open any .ipynb file in your browser and read it like a document — from a file or a GitHub link. No Jupyter, no Python, no upload. Then save it as PDF, HTML or a Python script.",
+    "Open any .ipynb file in your browser and read it like a document — from a file or a GitHub link. No Jupyter, no Python, no upload. Save as PDF, HTML or .py.",
   alternates: { canonical: "/ipynb-viewer" },
   openGraph: {
     title: "IPYNB Viewer — open and view Jupyter notebooks online, no upload",

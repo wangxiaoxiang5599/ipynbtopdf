@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 export const metadata: Metadata = {
   title: "IPYNB to HTML Converter — free, in your browser, no upload",
   description:
-    "Convert a Jupyter notebook (.ipynb) to a single HTML file in your browser. Keeps Markdown, highlighted code, LaTeX math, plots and tables. No upload, no nbconvert, no account.",
+    "Convert a Jupyter notebook (.ipynb) to one HTML file in your browser. Keeps Markdown, highlighted code, LaTeX math, plots and tables. No upload, no nbconvert.",
   alternates: { canonical: "/ipynb-to-html" },
   openGraph: {
     title: "IPYNB to HTML Converter — free, in your browser, no upload",

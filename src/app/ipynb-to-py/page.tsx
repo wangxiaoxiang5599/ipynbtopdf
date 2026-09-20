@@ -5,12 +5,12 @@ import { site } from "@/lib/site";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
-  title: "IPYNB to PY Converter — Jupyter notebook to Python script, in your browser",
+  title: "IPYNB to PY Converter — Jupyter notebook to Python script, free",
   description:
-    "Convert a Jupyter notebook (.ipynb) to a clean Python script in your browser. Markdown becomes comments, magics are commented out so the .py actually runs. No upload, no nbconvert.",
+    "Convert a Jupyter notebook (.ipynb) to a clean Python script in your browser. Markdown becomes comments, magics are commented out. No upload, no nbconvert.",
   alternates: { canonical: "/ipynb-to-py" },
   openGraph: {
-    title: "IPYNB to PY Converter — Jupyter notebook to Python script, in your browser",
+    title: "IPYNB to PY Converter — Jupyter notebook to Python script, free",
     url: `${site.url}/ipynb-to-py`,
   },
 };

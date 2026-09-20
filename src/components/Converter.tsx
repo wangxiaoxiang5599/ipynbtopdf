@@ -7,6 +7,8 @@ import { downloadText, fragmentHtml, standaloneHtml, type HtmlExportKind } from 
 import { defaultScriptOptions, type Script, type ScriptOptions } from "@/lib/script-options";
 import { setPendingFile, takePendingFile } from "@/lib/handoff";
 import { fetchNotebookFile } from "@/lib/fetch-notebook";
+import Link from "next/link";
+import { Icon } from "@/components/Icon";
 
 type Lib = typeof import("@/lib/ipynb");
 type ScriptLib = typeof import("@/lib/script");
@@ -327,14 +329,22 @@ export function Converter({
 
   if (!notebook) {
     return (
-      <div className="text-center">
+      <div className="print-hide mx-auto max-w-3xl overflow-hidden rounded-2xl border border-line bg-surface text-center shadow-[0_8px_32px_-16px_rgba(32,43,54,0.18)]" aria-busy={busy}>
         {dropOverlay}
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line-soft px-5 py-3 text-[12px] sm:px-8">
+          <span className="font-medium text-ink-soft">.ipynb <span className="mx-2 text-muted">→</span> {mode === "pdf" ? "PDF document" : mode === "html" ? "HTML document" : mode === "script" ? "Python script" : "Notebook preview"}</span>
+          <span className="inline-flex items-center gap-1.5 text-[#35644e]"><Icon name="shield" size={15} /> Local processing</span>
+        </div>
+        <div className="px-5 py-8 sm:px-8 sm:py-10">
         {variant === "colab" ? <ColabSteps /> : null}
-        <label className="inline-flex cursor-pointer items-center gap-3 rounded-xl bg-brand px-12 py-6 text-[24px] font-medium text-white shadow-[0_3px_6px_rgba(0,0,0,0.14)] transition-colors hover:bg-brand-dark">
+        <p className="mb-2 text-[22px] font-semibold tracking-tight text-ink">Your notebook starts here</p>
+        <p className="mb-6 text-[14px] leading-relaxed text-muted">Open a local file to preview its contents. No account needed.</p>
+        <label className="inline-flex cursor-pointer items-center gap-3 rounded-lg bg-brand px-7 py-3.5 text-[16px] font-semibold text-white transition-colors hover:bg-brand-dark focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-brand">
           <input
             type="file"
             accept=".ipynb,application/json"
             className="sr-only"
+            disabled={busy}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void loadFile(file);
@@ -384,21 +394,27 @@ export function Converter({
         ) : null}
 
         {error ? (
-          <p className="mx-auto mt-6 max-w-md rounded-lg border border-[#f3d0d0] bg-[#fdf2f2] px-4 py-3 text-[15px] text-[#9b2c2c]">
+          <p role="alert" className="mx-auto mt-6 max-w-md rounded-lg border border-[#f3d0d0] bg-[#fdf2f2] px-4 py-3 text-[15px] text-[#9b2c2c]">
             {error}
           </p>
         ) : null}
 
-        <p className="mt-8 text-[15px] text-muted">
-          No notebook to hand?{" "}
+        <p className="mt-6 text-[14px] text-muted">
+          See the result first. {" "}
           <button
             type="button"
+            disabled={busy}
             onClick={() => void loadSample()}
             className="font-medium text-brand-dark underline underline-offset-2 hover:text-brand"
           >
             Try a sample
           </button>
         </p>
+        </div>
+        <div className="border-t border-line-soft bg-bg/60 px-5 py-3.5 text-[12px] leading-relaxed text-muted">
+          Your file is processed in this browser, without an upload to our server.{" "}
+          <Link href="/privacy" className="font-medium text-ink-soft underline underline-offset-2 hover:text-brand-dark">Privacy details</Link>
+        </div>
       </div>
     );
   }

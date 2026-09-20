@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 const faqs = [
   {
     q: "Is my notebook uploaded to a server?",
-    a: "No. The file is read with the browser's file API and rendered by JavaScript on your machine. There is no upload endpoint, so the notebook cannot leave your computer — which also means you can use this on work that is not allowed to go to a third-party service. One honest caveat: if a Markdown cell links an image hosted on the web, your browser fetches that image from wherever it lives, exactly as Jupyter itself does. Images stored inside the notebook never cause a request.",
+    a: "The converter reads local files with the browser's file API and renders them on your machine, without uploading them to a conversion server. External images or other remote media in a notebook can connect to their hosts. The website also loads Google AdSense. Read our Privacy details page and follow your organization's policies for confidential work.",
   },
   {
     q: "Do I need Python, LaTeX or nbconvert installed?",
@@ -78,6 +78,7 @@ export default function Page() {
           ))}
         </dl>
 
+        <p className="mt-8"><Link href="/privacy">Privacy details: local processing, network requests and storage</Link></p>
         <p className="mt-8 text-[17px] text-ink-soft">
           Something not answered here? The{" "}
           <Link href="/how-to-convert-jupyter-notebook-to-pdf">

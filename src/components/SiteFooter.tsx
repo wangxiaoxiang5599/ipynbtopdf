@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { tools } from "@/lib/nav";
+import { Brand } from "@/components/Brand";
 
 const columns = [
   { title: "Tools", links: tools },
@@ -15,6 +16,7 @@ const columns = [
   {
     title: "Project",
     links: [
+      { href: "/privacy", label: "Privacy details" },
       { href: site.repo, label: "Source on GitHub" },
       { href: `${site.repo}/blob/master/LICENSE`, label: "MIT licence" },
       { href: `${site.repo}/issues`, label: "Report a problem" },
@@ -27,12 +29,10 @@ export function SiteFooter() {
     <footer className="print-hide mt-24 border-t border-line-soft bg-surface">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 sm:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <p className="text-[20px] font-bold tracking-tight text-ink">
-            ipynb<span className="text-brand">to</span>pdf
-          </p>
+          <Link href="/" aria-label="ipynbtopdf home"><Brand /></Link>
           <p className="mt-3 max-w-xs text-[14px] leading-relaxed text-muted">
-            Converts Jupyter notebooks to PDF inside your browser. Nothing is uploaded, nothing
-            is installed, and there is no account to make.
+            A focused, open-source tool for Jupyter notebooks. Convert locally in your
+            browser, with no account or installation.
           </p>
         </div>
         {columns.map((column) => (
@@ -52,8 +52,8 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-line-soft">
         <p className="mx-auto max-w-6xl px-5 py-5 text-[13px] text-muted">
-          © {new Date().getFullYear()} ipynbtopdf · Free, open source, and runs entirely on your
-          machine.
+          © {new Date().getFullYear()} ipynbtopdf · An independent open-source project.
+          Not affiliated with Project Jupyter or Google Colab.
         </p>
       </div>
     </footer>

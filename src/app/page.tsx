@@ -21,9 +21,8 @@ const keeps = [
 ] as const;
 
 const badges = [
-  { label: "No upload", icon: "shield" },
-  { label: "No account", icon: "user" },
-  { label: "No install", icon: "bolt" },
+  { label: "Processed on your device", icon: "shield" },
+  { label: "Free, no sign-up", icon: "user" },
   { label: "Open source", icon: "code" },
 ] as const;
 
@@ -34,7 +33,7 @@ const steps = [
   },
   {
     title: "Check it",
-    body: "The notebook is shown exactly as the PDF will look. Hide the code if you only want the write-up.",
+    body: "Preview the text, code and saved outputs. Hide the code if you only want the write-up, then check pagination in the print preview.",
   },
   {
     title: "Save as PDF",
@@ -47,8 +46,8 @@ const methods = [
     name: "This converter",
     install: "Nothing",
     hideCode: "One switch",
-    offline: "Yes, once loaded",
-    failure: "None to speak of",
+    offline: "After first conversion loads",
+    failure: "Wide tables, interactive outputs",
   },
   {
     name: "Jupyter menu (PDF via LaTeX)",
@@ -100,7 +99,7 @@ const sources = [
 const faqs = [
   {
     q: "Is my notebook uploaded?",
-    a: "No. It is read and converted on your own computer. Nothing is sent anywhere, so private work stays private.",
+    a: "The converter reads your local file in your browser and does not upload it to a conversion server. External images in a notebook can make network requests, and this website loads Google AdSense. See Privacy details for the full explanation.",
   },
   {
     q: "Do I need to install anything?",
@@ -140,7 +139,7 @@ const faqs = [
   },
   {
     q: "Does it work offline?",
-    a: "Yes. Once the page has loaded, you can disconnect and keep converting. There is no server to talk to.",
+    a: "After opening a notebook once to load the conversion code, you can convert local files while keeping this tab open offline. External images and notebooks opened from a URL still need a connection.",
   },
   {
     q: "Is there a file size limit?",
@@ -186,13 +185,14 @@ export default function Home() {
       />
 
       <div className="mx-auto max-w-6xl px-5">
-        <section className="print-hide pt-12 pb-10 text-center sm:pt-16">
-          <h1 className="text-[34px] leading-[1.15] font-semibold text-ink sm:text-[42px] sm:leading-[52px]">
-            Convert ipynb to PDF
+        <section className="print-hide pt-10 pb-8 text-center sm:pt-14 sm:pb-9">
+          <p className="mb-4 text-[11px] font-semibold tracking-[0.16em] text-muted uppercase">A simpler notebook workflow</p>
+          <h1 className="text-[36px] leading-[1.12] font-semibold tracking-[-1.6px] text-ink sm:text-[52px] sm:tracking-[-2px]">
+            Your notebook. <span className="text-brand">Ready for PDF.</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-[19px] leading-snug text-ink-soft sm:text-[22px] sm:leading-8">
-            Turn a Jupyter notebook into a PDF in your browser. Free, and the file never
-            leaves your computer.
+          <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">
+            Convert ipynb to PDF, right in your browser.{" "}<br className="hidden sm:block" />
+            Keep your code, equations and saved plots. Skip the setup.
           </p>
         </section>
 
@@ -200,7 +200,7 @@ export default function Home() {
           <Converter />
         </section>
 
-        <section className="print-hide mx-auto mt-10 flex max-w-3xl flex-wrap justify-center gap-x-8 gap-y-3 text-[15px] text-ink-soft">
+        <section aria-label="About this converter" className="print-hide mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-x-7 gap-y-3 text-[13px] text-muted">
           {badges.map((badge) => (
             <span key={badge.label} className="inline-flex items-center gap-2">
               <Icon name={badge.icon} size={18} />
@@ -215,7 +215,7 @@ export default function Home() {
           ))}
         </section>
 
-        <section className="print-hide mt-28 text-center">
+        <section className="print-hide mt-20 text-center">
           <h2 className="text-[30px] font-semibold text-ink sm:text-[34px]">
             Your notebook, kept intact
           </h2>
@@ -261,9 +261,8 @@ export default function Home() {
               Five ways to turn a notebook into a PDF
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
-              Every other route goes through nbconvert, and nbconvert&rsquo;s PDF exporter goes
-              through LaTeX. That is where most of them fail on a machine that has never had
-              TeX installed.
+              Choose the route that fits your setup. LaTeX-based exports need a TeX
+              installation; browser-based options use a print engine instead.
             </p>
           </div>
           <div className="mt-10 overflow-x-auto rounded-2xl border border-line bg-surface">
@@ -331,27 +330,27 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="print-hide mt-24">
+        <section id="how-it-works" className="print-hide mt-24 scroll-mt-24">
           <div className="card mx-auto max-w-3xl sm:p-10">
             <h2 className="text-[26px] font-semibold text-ink sm:text-[30px]">
-              How it works, and why you can trust it
+              A small tool. An open process.
             </h2>
             <div className="mt-4 space-y-4 text-[16px] leading-relaxed text-ink-soft">
               <p>
-                The whole converter is JavaScript running in this page. Markdown is rendered
-                with markdown-it, code is highlighted with highlight.js, equations are typeset
-                with KaTeX, and the result is sanitised with DOMPurify before it is shown. There
-                is no upload endpoint — not a private one, not an optional one — so the file
-                cannot leave your machine.
+                Your browser reads the notebook and renders its saved contents. The converter
+                does not execute your code or upload the file to a conversion server. You
+                review the document, then use your browser&rsquo;s print dialog to save the PDF.
               </p>
               <p>
-                You do not have to take that on faith:{" "}
+                You can inspect{" "}
                 <a href={site.repo} className="font-medium text-brand-dark hover:underline">
-                  the source is on GitHub
+                  the source on GitHub
                 </a>{" "}
-                under the MIT licence, and the site is a static export with no server behind
-                it. If your employer does not allow notebooks on third-party services, this is
-                the converter you can still use.
+                under the MIT licence. External notebook images can connect to their hosts,
+                and the website loads Google AdSense. Our{" "}
+                <Link href="/privacy" className="font-medium text-brand-dark underline underline-offset-2">privacy details</Link>{" "}
+                explain these connections and local storage. For work files, follow your
+                organization&rsquo;s data policies.
               </p>
             </div>
           </div>

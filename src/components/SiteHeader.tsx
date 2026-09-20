@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Brand } from "@/components/Brand";
 import { site } from "@/lib/site";
 import { ToolsMenu } from "@/components/ToolsMenu";
 
@@ -12,18 +12,13 @@ const nav = [
 export function SiteHeader() {
   return (
     <header className="print-hide sticky top-0 z-40 border-b border-line-soft bg-surface">
-      <div className="mx-auto flex h-[60px] max-w-6xl items-center justify-between gap-4 px-5">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          {/* A 3x cut of logo.png for the 30px header slot; the full file is 93 KB and only the OG
-              image needs it. */}
-          <Image src="/logo-header.png" alt="" width={72} height={84} className="h-[30px] w-auto" priority />
-          <span className="hidden text-[22px] font-bold tracking-tight text-ink min-[400px]:inline">
-            ipynb<span className="text-brand">to</span>pdf
-          </span>
+      <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between gap-3 px-5">
+        <Link href="/" aria-label="ipynbtopdf home" className="flex shrink-0 items-center">
+          <Brand />
         </Link>
 
-        <nav className="hidden items-center gap-1 text-[14px] font-medium tracking-wide text-ink uppercase sm:flex">
-          <ToolsMenu className="uppercase" />
+        <nav aria-label="Main navigation" className="hidden items-center gap-1 text-[14px] font-medium text-ink-soft md:flex">
+          <ToolsMenu className="" />
           {nav.map((item) => (
             <Link key={item.href} href={item.href} className="rounded-md px-3 py-2 hover:text-brand">
               {item.label}
@@ -32,19 +27,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <nav className="flex items-center gap-2 text-[14px] font-medium whitespace-nowrap text-ink sm:hidden">
-            <ToolsMenu className="" />
-            {nav.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-brand">
-                {item.label}
-              </Link>
-            ))}
+          <nav aria-label="Mobile navigation" className="flex items-center text-[14px] font-medium text-ink md:hidden">
+            <ToolsMenu className="[&>div]:right-0 [&>div]:left-auto" />
           </nav>
           <a
             href={site.repo}
-            className="hidden rounded-lg bg-brand px-4 py-2 text-[14px] font-semibold text-white hover:bg-brand-dark sm:inline-block"
+            className="hidden rounded-lg border border-line px-4 py-2 text-[13px] font-medium text-ink hover:border-brand hover:text-brand-dark md:inline-block"
           >
-            GitHub
+            Source on GitHub ↗
           </a>
         </div>
       </div>

@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f5f5fa;
+  --bg: #f8f9fb;
   --surface: #ffffff;
-  --ink: #33333b;
-  --ink-soft: #47474f;
-  --muted: #707078;
-  --line: #d6d6df;
-  --line-soft: #e8e8ef;
-  --brand: #f37726;
-  --brand-dark: #d8621a;
+  --ink: #202b36;
+  --ink-soft: #465360;
+  --muted: #647180;
+  --line: #dbe1e7;
+  --line-soft: #e9edf1;
+  --brand: #c45119;
+  --brand-dark: #a64010;
   --brand-soft: #fff3ea;
   --brand-line: #f5a76c;
   --code-bg: #f5f5fa;
@@ -37,6 +37,11 @@ body {
   font-family: var(--font-sans-body), ui-sans-serif, system-ui, sans-serif;
 }
 
+:where(a, button, summary, input):focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 4px;
+}
+
 /* The white panel every content page sits in; the grey page behind it is the frame. */
 .prose-page {
   background: var(--surface);
@@ -48,18 +53,12 @@ body {
   color: var(--ink);
 }
 
-/* The iLovePDF tool card: white on the grey page, a hairline border, a lift on hover. */
+/* Quiet surfaces keep the conversion action visually prominent. */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 24px;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
-}
-
-.card:hover {
-  box-shadow: 0 6px 18px rgba(51, 51, 59, 0.08);
-  transform: translateY(-2px);
 }
 
 .card-icon {

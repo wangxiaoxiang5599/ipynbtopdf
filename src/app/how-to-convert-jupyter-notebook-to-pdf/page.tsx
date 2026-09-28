@@ -44,8 +44,57 @@ export default function Page() {
         Jupyter does not ship with. If you got here after seeing{" "}
         <code>500 : Internal Server Error</code> or{" "}
         <code>nbconvert failed: xelatex not found</code>, that is why — see{" "}
-        <Link href="/fix-nbconvert-pdf-error">fixing nbconvert PDF errors</Link>.
+        <Link href="#fix-nbconvert-pdf-errors">fixing nbconvert PDF errors</Link>.
       </p>
+
+      <h2 id="fix-nbconvert-pdf-errors">Fix common nbconvert PDF errors</h2>
+      <p>
+        The standard <code>--to pdf</code> exporter writes LaTeX and then runs a TeX
+        engine. Read the exact error below; when you do not need LaTeX typesetting, the
+        <code> --to webpdf</code> route above avoids that toolchain.
+      </p>
+
+      <h3><code>nbconvert failed: xelatex not found on PATH</code></h3>
+      <p>
+        No LaTeX engine is installed or visible to the shell running Jupyter. Install a
+        TeX distribution (MiKTeX on Windows, MacTeX on macOS, or TeX Live on Linux), then
+        reopen the terminal or Jupyter server so it picks up the updated PATH.
+      </p>
+
+      <h3><code>500 : Internal Server Error</code> while exporting from Jupyter</h3>
+      <p>
+        The web interface can hide the specific exporter error. Check the terminal where
+        the Jupyter server is running; it usually reports the missing executable or
+        package that caused the failure.
+      </p>
+
+      <h3><code>pandoc: command not found</code></h3>
+      <p>
+        Pandoc is a separate program; installing <code>nbconvert</code> with pip does not
+        install it. Install Pandoc from <a href="https://pandoc.org/installing.html">the
+        official instructions</a> or with <code>conda install -c conda-forge pandoc</code>.
+      </p>
+
+      <h3><code>Undefined control sequence</code> or garbled CJK text</h3>
+      <p>
+        LaTeX may be encountering a character or font it cannot typeset. Check the TeX
+        log for the failing line; emoji, box-drawing characters, or a default font without
+        Chinese, Japanese, or Korean glyphs are common causes. Use a CJK-capable template
+        when LaTeX output is required, or export with <code>webpdf</code> to use browser
+        fonts instead.
+      </p>
+
+      <h3>If you must use LaTeX, inspect the generated file</h3>
+      <p>
+        Export the intermediate <code>.tex</code> file, then run XeLaTeX directly. Its log
+        points to the failing line and character more clearly than nbconvert&rsquo;s wrapper:
+      </p>
+      <pre>
+        <code>
+          jupyter nbconvert --to latex notebook.ipynb{"\n"}
+          xelatex notebook.tex
+        </code>
+      </pre>
 
       <h2>3. nbconvert on the command line</h2>
       <p>The classic LaTeX route:</p>

@@ -9,7 +9,7 @@ const columns = [
     title: "Guides",
     links: [
       { href: "/how-to-convert-jupyter-notebook-to-pdf", label: "How to convert a notebook to PDF" },
-      { href: "/fix-nbconvert-pdf-error", label: "Fix nbconvert PDF errors" },
+      { href: "/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors", label: "Fix nbconvert PDF errors" },
       { href: "/faq", label: "FAQ" },
     ],
   },
@@ -17,6 +17,7 @@ const columns = [
     title: "Project",
     links: [
       { href: "/privacy", label: "Privacy details" },
+      { href: "/embed", label: "Embed the converter" },
       { href: site.repo, label: "Source on GitHub" },
       { href: `${site.repo}/blob/master/LICENSE`, label: "MIT licence" },
       { href: `${site.repo}/issues`, label: "Report a problem" },

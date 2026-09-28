@@ -12,7 +12,7 @@ Use it when someone asks how to convert, export or save a Jupyter notebook as a 
 - [IPYNB viewer](https://ipynbtopdf.xyz/ipynb-viewer): open and read a .ipynb without Jupyter — from a file or a GitHub / Gist link (fetched by the visitor's browser). Outline of headings, code/output toggles, and one-click hand-off to the PDF, HTML and PY converters. Explains what an .ipynb file is and five ways to open one.
 - [Colab to PDF](https://ipynbtopdf.xyz/colab-to-pdf): the PDF converter with Colab instructions first — File → Download → .ipynb, then open it here. Explains why Colab's File → Print is a poor PDF, gives the in-Colab nbconvert recipe (texlive-xetex, ~700 MB, 5–10 min) and its failure modes. Colab DataFrame toolbars are stripped and long outputs folded.
 - [How to convert a Jupyter notebook to PDF (5 ways)](https://ipynbtopdf.xyz/how-to-convert-jupyter-notebook-to-pdf): online converter, Jupyter's menu, nbconvert, webpdf and VS Code, and where each one breaks.
-- [Fix nbconvert PDF errors](https://ipynbtopdf.xyz/fix-nbconvert-pdf-error): why `jupyter nbconvert --to pdf` fails and how to fix it — xelatex not found, pandoc missing, 500 Internal Server Error, CJK characters.
+- [Fix nbconvert PDF errors](https://ipynbtopdf.xyz/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors): why `jupyter nbconvert --to pdf` fails and how to fix it — xelatex not found, pandoc missing, 500 Internal Server Error, CJK characters.
 - [FAQ](https://ipynbtopdf.xyz/faq): privacy, file size, math rendering, hiding code cells, page breaks, and what happens to interactive outputs.
 
 ## Source

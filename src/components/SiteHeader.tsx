@@ -5,7 +5,7 @@ import { ToolsMenu } from "@/components/ToolsMenu";
 
 const nav = [
   { href: "/how-to-convert-jupyter-notebook-to-pdf", label: "How to" },
-  { href: "/fix-nbconvert-pdf-error", label: "Fix errors" },
+  { href: "/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors", label: "Fix errors" },
   { href: "/faq", label: "FAQ" },
 ];
 

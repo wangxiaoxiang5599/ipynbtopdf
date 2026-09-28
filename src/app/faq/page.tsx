@@ -85,8 +85,10 @@ export default function Page() {
             comparison of the five export routes
           </Link>{" "}
           and the{" "}
-          <Link href="/fix-nbconvert-pdf-error">nbconvert error guide</Link> cover the
-          command-line side.
+          <Link href="/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors">
+            nbconvert error guide
+          </Link>{" "}
+          cover the command-line side.
         </p>
       </article>
     </>

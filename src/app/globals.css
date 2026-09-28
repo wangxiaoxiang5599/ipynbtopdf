@@ -37,6 +37,13 @@ body {
   font-family: var(--font-sans-body), ui-sans-serif, system-ui, sans-serif;
 }
 
+/* The embedded converter uses the normal root layout for its fonts and assets, but keeps only
+   its own compact frame UI visible. */
+body:has([data-embed-root]) > header,
+body:has([data-embed-root]) > footer {
+  display: none;
+}
+
 :where(a, button, summary, input):focus-visible {
   outline: 3px solid var(--brand);
   outline-offset: 4px;

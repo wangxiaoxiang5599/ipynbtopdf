@@ -188,11 +188,11 @@ export default function Home() {
         <section className="print-hide pt-10 pb-8 text-center sm:pt-14 sm:pb-9">
           <p className="mb-4 text-[11px] font-semibold tracking-[0.16em] text-muted uppercase">A simpler notebook workflow</p>
           <h1 className="text-[36px] leading-[1.12] font-semibold tracking-[-1.6px] text-ink sm:text-[52px] sm:tracking-[-2px]">
-            Your notebook. <span className="text-brand">Ready for PDF.</span>
+            Convert <span className="text-brand">IPYNB to PDF</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-[16px] leading-relaxed text-ink-soft sm:text-[18px]">
-            Convert ipynb to PDF, right in your browser.{" "}<br className="hidden sm:block" />
-            Keep your code, equations and saved plots. Skip the setup.
+            Turn a Jupyter notebook (.ipynb) into a PDF in your browser. Keep saved code,
+            equations and plots; no upload or LaTeX setup.
           </p>
         </section>
 

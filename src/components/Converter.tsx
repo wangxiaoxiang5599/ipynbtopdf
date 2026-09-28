@@ -602,6 +602,31 @@ export function Converter({
                 <ArrowMark />
               </button>
             ) : null}
+            {mode === "pdf" ? (
+              <div className="mt-4 rounded-xl bg-page px-4 py-3 text-[13px] leading-relaxed text-muted">
+                <p>Need another format?</p>
+                <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                  <Link
+                    href="/ipynb-to-html"
+                    onClick={() => {
+                      if (fileRef.current) setPendingFile(fileRef.current);
+                    }}
+                    className="font-medium text-brand underline underline-offset-2 hover:text-brand-dark"
+                  >
+                    Convert to HTML
+                  </Link>
+                  <Link
+                    href="/ipynb-viewer"
+                    onClick={() => {
+                      if (fileRef.current) setPendingFile(fileRef.current);
+                    }}
+                    className="font-medium text-brand underline underline-offset-2 hover:text-brand-dark"
+                  >
+                    Open in notebook viewer
+                  </Link>
+                </div>
+              </div>
+            ) : null}
             {mode !== "pdf" && mode !== "view" ? (
               <button
                 type="button"

@@ -260,7 +260,7 @@ export default function ColabToPdf() {
               The install is around 700 MB and does not persist between sessions. When it fails,
               it is usually a missing TeX package, a table wider than the page, or characters
               the default fonts do not cover —{" "}
-              <Link href="/fix-nbconvert-pdf-error" className="font-medium text-brand-dark hover:underline">
+              <Link href="/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors" className="font-medium text-brand-dark hover:underline">
                 the fixes are here
               </Link>
               .

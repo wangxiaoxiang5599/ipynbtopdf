@@ -56,9 +56,10 @@ export default function EmbedPage() {
           their interaction.
         </p>
         <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
-          The widget includes a visible “Powered by ipynbtopdf” link. Keep that attribution in place
-          when embedding it. For a standalone converter or more information about local processing,
-          visit <a href={site.url} className="font-medium text-brand-dark underline underline-offset-2">ipynbtopdf.xyz</a>.
+          The widget includes a visible “Powered by ipynbtopdf” attribution. Its link is marked
+          nofollow: readers can still visit the converter, but the embed is not intended to pass
+          search ranking credit. For a standalone converter or more information about local
+          processing, visit <a href={site.url} className="font-medium text-brand-dark underline underline-offset-2">ipynbtopdf.xyz</a>.
         </p>
       </section>
     </div>

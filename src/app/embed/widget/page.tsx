@@ -21,7 +21,7 @@ export default function EmbedWidgetPage() {
         <a
           href={site.url}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer nofollow"
           className="font-medium text-brand-dark underline underline-offset-2"
         >
           ipynbtopdf

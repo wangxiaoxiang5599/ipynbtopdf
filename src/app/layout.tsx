@@ -30,6 +30,8 @@ export const metadata: Metadata = {
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "Convert ipynb to PDF" }],
   },
   twitter: { card: "summary_large_image", images: ["/og.png"] },
+  /* Ownership check for the SaaSHub directory listing; it only needs to stay while verifying. */
+  verification: { other: { "saashub-verification": "ll5x04t5cm0v" } },
 };
 
 /* Site-level entities, emitted once here so every page carries them. The home page adds

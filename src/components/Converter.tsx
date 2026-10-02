@@ -7,6 +7,7 @@ import { downloadText, fragmentHtml, standaloneHtml, type HtmlExportKind } from 
 import { defaultScriptOptions, type Script, type ScriptOptions } from "@/lib/script-options";
 import { setPendingFile, takePendingFile } from "@/lib/handoff";
 import { fetchNotebookFile } from "@/lib/fetch-notebook";
+import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 
@@ -87,7 +88,9 @@ export function Converter({
       setFileName(file.name);
       setOptions(defaultOptions);
       setScriptOptions(defaultScriptOptions);
+      track("Notebook Opened", { tool: mode });
     } catch (cause) {
+      track("Notebook Failed", { tool: mode });
       setNotebook(null);
       setStats(null);
       setHtml("");
@@ -243,6 +246,7 @@ export function Converter({
   const print = () => {
     const previous = document.title;
     document.title = fileName.replace(/\.ipynb$/i, "") || "notebook";
+    track("Export", { format: "pdf", tool: mode });
     window.print();
     document.title = previous;
   };
@@ -273,15 +277,21 @@ export function Converter({
   const exportHtml = () =>
     exportKind === "page" ? standaloneHtml(baseName, html) : fragmentHtml(html);
 
-  const downloadHtml = () => downloadText(`${baseName}.html`, exportHtml());
+  const downloadHtml = () => {
+    track("Export", { format: "html", tool: mode });
+    downloadText(`${baseName}.html`, exportHtml());
+  };
 
   const downloadScript = () => {
-    if (script) downloadText(`${baseName}.${script.extension}`, script.code, "text/plain");
+    if (!script) return;
+    track("Export", { format: "script", tool: mode });
+    downloadText(`${baseName}.${script.extension}`, script.code, "text/plain");
   };
 
   const copyText = async () => {
     try {
       await navigator.clipboard.writeText(mode === "script" ? (script?.code ?? "") : exportHtml());
+      track("Export", { format: mode === "script" ? "copy-script" : "copy-html", tool: mode });
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {

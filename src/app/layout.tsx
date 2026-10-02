@@ -66,6 +66,13 @@ const siteJsonLd = [
    later, once the site is approved. */
 const ADSENSE_CLIENT = "ca-pub-6243042545068232";
 
+/* Self-hosted Plausible (cookie-free visit counts; see /privacy). The site's own script also
+   counts outbound links, file downloads and form submissions — switched on per site in the
+   Plausible dashboard. The inline stub queues calls made before it loads. */
+const PLAUSIBLE_SCRIPT = "https://stats.wangxiaoxiang.com/js/pa-j_a0qgTHgef_rKOAfjcz_.js";
+const PLAUSIBLE_STUB =
+  "window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()";
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -78,6 +85,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
           crossOrigin="anonymous"
         />
+        <script async src={PLAUSIBLE_SCRIPT} />
+        <script dangerouslySetInnerHTML={{ __html: PLAUSIBLE_STUB }} />
       </head>
       <body className="min-h-full flex flex-col">
         <script

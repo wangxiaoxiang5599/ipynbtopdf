@@ -9,9 +9,14 @@ export const metadata: Metadata = {
   description:
     "Convert a Jupyter notebook (.ipynb) to a clean Python script in your browser. Markdown becomes comments, magics are commented out. No upload, no nbconvert.",
   alternates: { canonical: "/ipynb-to-py" },
+  /* Metadata merges shallowly, so this replaces the layout's openGraph whole; the image and
+     site name have to be restated or the share card loses them. */
   openGraph: {
+    type: "website",
+    siteName: site.name,
     title: "IPYNB to PY Converter — Jupyter notebook to Python script, free",
     url: `${site.url}/ipynb-to-py`,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ipynbtopdf" }],
   },
 };
 

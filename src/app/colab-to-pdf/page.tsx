@@ -9,9 +9,14 @@ export const metadata: Metadata = {
   description:
     "Save a Google Colab notebook as a PDF: download the .ipynb, open it here, hide the code if you like, and save. No upload, no TeX install, no cut-off outputs.",
   alternates: { canonical: "/colab-to-pdf" },
+  /* Metadata merges shallowly, so this replaces the layout's openGraph whole; the image and
+     site name have to be restated or the share card loses them. */
   openGraph: {
+    type: "website",
+    siteName: site.name,
     title: "Colab to PDF — convert a Google Colab notebook to PDF, no LaTeX",
     url: `${site.url}/colab-to-pdf`,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ipynbtopdf" }],
   },
 };
 

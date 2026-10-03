@@ -9,9 +9,14 @@ export const metadata: Metadata = {
   description:
     "Convert a Jupyter notebook (.ipynb) to one HTML file in your browser. Keeps Markdown, highlighted code, LaTeX math, plots and tables. No upload, no nbconvert.",
   alternates: { canonical: "/ipynb-to-html" },
+  /* Metadata merges shallowly, so this replaces the layout's openGraph whole; the image and
+     site name have to be restated or the share card loses them. */
   openGraph: {
+    type: "website",
+    siteName: site.name,
     title: "IPYNB to HTML Converter — free, in your browser, no upload",
     url: `${site.url}/ipynb-to-html`,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "ipynbtopdf" }],
   },
 };
 

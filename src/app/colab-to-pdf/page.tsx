@@ -302,6 +302,10 @@ export default function ColabToPdf() {
             <Link href="/ipynb-to-py" className="font-medium text-brand-dark hover:underline">
               Colab to .py
             </Link>
+            {" · "}
+            <Link href="/ipynb-viewer" className="font-medium text-brand-dark hover:underline">
+              View the Colab notebook online
+            </Link>
           </p>
         </section>
 

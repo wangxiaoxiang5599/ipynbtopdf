@@ -145,6 +145,11 @@ export default function Page() {
           to a server.
         </li>
         <li>
+          <strong>Just reading a notebook someone sent you</strong> — you may not need a
+          PDF at all: <Link href="/ipynb-viewer">open and view the .ipynb file online</Link>,
+          from the file or its GitHub link.
+        </li>
+        <li>
           <strong>Automating it in CI</strong> — <code>--to webpdf</code>, since it needs
           no interactive dialog.
         </li>

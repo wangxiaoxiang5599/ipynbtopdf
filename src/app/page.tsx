@@ -328,6 +328,13 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <p className="mt-8 text-[16px] text-ink-soft">
+            Only need to read it?{" "}
+            <Link href="/ipynb-viewer" className="font-medium text-brand-dark hover:underline">
+              Open and view the .ipynb file online
+            </Link>{" "}
+            in the notebook viewer, from a file or a GitHub link.
+          </p>
         </section>
 
         <section id="how-it-works" className="print-hide mt-24 scroll-mt-24">

@@ -309,6 +309,10 @@ export default function IpynbToHtml() {
             <Link href="/" className="font-medium text-brand-dark hover:underline">
               Convert the same notebook to PDF
             </Link>
+            {" · "}
+            <Link href="/ipynb-viewer" className="font-medium text-brand-dark hover:underline">
+              Just view the .ipynb online
+            </Link>
           </p>
         </section>
 

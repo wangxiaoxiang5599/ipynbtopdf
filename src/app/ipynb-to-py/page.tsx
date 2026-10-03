@@ -292,6 +292,10 @@ export default function IpynbToPy() {
             <Link href="/ipynb-to-html" className="font-medium text-brand-dark hover:underline">
               Convert to HTML
             </Link>
+            {" · "}
+            <Link href="/ipynb-viewer" className="font-medium text-brand-dark hover:underline">
+              View the notebook online
+            </Link>
           </p>
         </section>
 

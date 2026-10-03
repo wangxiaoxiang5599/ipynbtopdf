@@ -88,7 +88,8 @@ export default function Page() {
           <Link href="/how-to-convert-jupyter-notebook-to-pdf#fix-nbconvert-pdf-errors">
             nbconvert error guide
           </Link>{" "}
-          cover the command-line side.
+          cover the command-line side. To read a notebook without converting it, use the{" "}
+          <Link href="/ipynb-viewer">online ipynb viewer</Link>.
         </p>
       </article>
     </>

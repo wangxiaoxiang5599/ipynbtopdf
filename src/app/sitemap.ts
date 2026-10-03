@@ -7,15 +7,15 @@ export const dynamic = "force-static";
    time here would claim every page changed on every deploy, and Google stops trusting the
    field once it catches that. Bump a date when you edit the page it belongs to. */
 const routes = [
-  { path: "/", priority: 1, lastModified: "2026-09-28" },
-  { path: "/privacy", priority: 0.5, lastModified: "2026-09-20" },
-  { path: "/ipynb-to-html", priority: 0.9, lastModified: "2026-09-20" },
-  { path: "/ipynb-to-py", priority: 0.9, lastModified: "2026-09-20" },
-  { path: "/ipynb-viewer", priority: 0.9, lastModified: "2026-09-20" },
-  { path: "/colab-to-pdf", priority: 0.9, lastModified: "2026-09-20" },
-  { path: "/how-to-convert-jupyter-notebook-to-pdf", priority: 0.8, lastModified: "2026-09-28" },
+  { path: "/", priority: 1, lastModified: "2026-10-03" },
+  { path: "/privacy", priority: 0.5, lastModified: "2026-10-02" },
+  { path: "/ipynb-to-html", priority: 0.9, lastModified: "2026-10-03" },
+  { path: "/ipynb-to-py", priority: 0.9, lastModified: "2026-10-03" },
+  { path: "/ipynb-viewer", priority: 0.9, lastModified: "2026-10-03" },
+  { path: "/colab-to-pdf", priority: 0.9, lastModified: "2026-10-03" },
+  { path: "/how-to-convert-jupyter-notebook-to-pdf", priority: 0.8, lastModified: "2026-10-03" },
   { path: "/embed", priority: 0.5, lastModified: "2026-09-29" },
-  { path: "/faq", priority: 0.6, lastModified: "2026-09-20" },
+  { path: "/faq", priority: 0.6, lastModified: "2026-10-03" },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

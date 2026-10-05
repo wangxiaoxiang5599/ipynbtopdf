@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <article className="prose-page mx-auto my-10 max-w-3xl px-6 py-10 sm:my-14 sm:px-12">
-      <p className="text-muted">About this tool · Updated October 2, 2026</p>
+      <p className="text-muted">About this tool · Updated October 6, 2026</p>
       <h1 className="text-[36px] leading-tight font-semibold tracking-tight sm:text-[44px]">Your notebook, explained.</h1>
       <p className="mt-5">You should know what happens before choosing a file. Here is how this website handles notebooks and connections.</p>
 
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <li>Opening a notebook from a public link fetches it from that host. Trying the sample downloads our example notebook.</li>
         <li>External images or other remote media referenced by a notebook can be fetched from their hosts when rendered. Embedded images do not need that fetch.</li>
         <li>The website includes Google AdSense. This third-party script can make requests and use cookies or similar technologies. Local conversion does not mean the entire page is free of third-party connections.</li>
-        <li>Visits are counted with Plausible, open-source analytics we run on our own server (stats.wangxiaoxiang.com). It receives the page address, the referring site, your browser, operating system, device type and country, plus clicks on links to other sites, file-download links and that a form was submitted (not what was typed). The converter also reports which step was used — a notebook opened or failed to open, or an export to PDF, HTML or a script — with only the tool and format, never the file name. It never receives notebook contents, sets no cookies and stores nothing in your browser. Your IP address is used only to look up the country and, mixed with a secret that changes daily, to count unique visitors; it is not stored.</li>
+        <li>Visits are counted with Plausible Analytics, a cookie-free analytics tool. It receives the page address, the referring site, your browser, operating system, device type and country, plus clicks on links to other sites, file-download links and that a form was submitted (not what was typed). The converter also reports which step was used — a notebook opened or failed to open, or an export to PDF, HTML or a script — with only the tool and format, never the file name. It never receives notebook contents, sets no cookies and stores nothing in your browser. Your IP address is used only to look up the country and, mixed with a secret that changes daily, to count unique visitors; it is not stored.</li>
       </ul>
 
       <h2>What is stored on your device</h2>

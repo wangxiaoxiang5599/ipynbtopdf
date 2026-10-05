@@ -21,7 +21,7 @@ export default function EmbedPage() {
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-soft">
           Give readers a way to turn an <code>.ipynb</code> file into a PDF without leaving your page.
-          The notebook is read in their browser and is not uploaded to our conversion server.
+          The notebook is read in their browser and is never uploaded anywhere.
         </p>
       </section>
 

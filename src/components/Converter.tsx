@@ -422,7 +422,7 @@ export function Converter({
         </p>
         </div>
         <div className="border-t border-line-soft bg-bg/60 px-5 py-3.5 text-[12px] leading-relaxed text-muted">
-          Your file is processed in this browser, without an upload to our server.{" "}
+          Your file is processed in this browser and is never uploaded.{" "}
           <Link href="/privacy" className="font-medium text-ink-soft underline underline-offset-2 hover:text-brand-dark">Privacy details</Link>
         </div>
       </div>

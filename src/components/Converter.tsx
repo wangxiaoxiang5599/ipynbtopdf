@@ -8,6 +8,7 @@ import { defaultScriptOptions, type Script, type ScriptOptions } from "@/lib/scr
 import { setPendingFile, takePendingFile } from "@/lib/handoff";
 import { fetchNotebookFile } from "@/lib/fetch-notebook";
 import { track } from "@/lib/analytics";
+import { useFileDrop } from "@/lib/use-file-drop";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 
@@ -63,7 +64,6 @@ export function Converter({
   const [html, setHtml] = useState("");
   const [options, setOptions] = useState(defaultOptions);
   const [busy, setBusy] = useState(false);
-  const [dragging, setDragging] = useState(false);
   const [error, setError] = useState("");
   const [showGuide, setShowGuide] = useState(false);
   const [exportKind, setExportKind] = useState<HtmlExportKind>("page");
@@ -106,6 +106,8 @@ export function Converter({
       setBusy(false);
     }
   }, [mode]);
+
+  const dragging = useFileDrop(loadFile);
 
   /* A file sent over from the viewer's "Save as" buttons. Taken inside the timer, not the
      effect body: development Strict Mode runs the effect, cleans up and runs it again, and a
@@ -209,39 +211,6 @@ export function Converter({
   const jumpTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  /* The whole window is the drop target, so a file dragged anywhere onto the page opens it.
-     dragenter/dragleave fire for every child crossed, hence the depth counter. */
-  useEffect(() => {
-    let depth = 0;
-    const enter = (event: DragEvent) => {
-      if (!event.dataTransfer?.types.includes("Files")) return;
-      depth += 1;
-      setDragging(true);
-    };
-    const leave = () => {
-      depth = Math.max(0, depth - 1);
-      if (depth === 0) setDragging(false);
-    };
-    const over = (event: DragEvent) => event.preventDefault();
-    const drop = (event: DragEvent) => {
-      event.preventDefault();
-      depth = 0;
-      setDragging(false);
-      const file = event.dataTransfer?.files?.[0];
-      if (file) void loadFile(file);
-    };
-    window.addEventListener("dragenter", enter);
-    window.addEventListener("dragleave", leave);
-    window.addEventListener("dragover", over);
-    window.addEventListener("drop", drop);
-    return () => {
-      window.removeEventListener("dragenter", enter);
-      window.removeEventListener("dragleave", leave);
-      window.removeEventListener("dragover", over);
-      window.removeEventListener("drop", drop);
-    };
-  }, [loadFile]);
 
   const print = () => {
     const previous = document.title;
@@ -800,7 +769,7 @@ function plural(count: number, noun: string): string {
   return `${count} ${noun}${count === 1 ? "" : "s"}`;
 }
 
-function RadioGroup<T extends string>({
+export function RadioGroup<T extends string>({
   title,
   name,
   value,
@@ -882,7 +851,7 @@ function Radio<T extends string>({
   );
 }
 
-function ArrowMark() {
+export function ArrowMark() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -890,7 +859,7 @@ function ArrowMark() {
   );
 }
 
-function UploadMark({ size, color }: { size: number; color: string }) {
+export function UploadMark({ size, color }: { size: number; color: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M12 16V4m0 0-5 5m5-5 5 5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

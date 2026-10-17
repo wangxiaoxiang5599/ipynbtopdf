@@ -4,6 +4,7 @@ export const tools = [
   { href: "/", label: "ipynb to PDF" },
   { href: "/ipynb-to-html", label: "ipynb to HTML" },
   { href: "/ipynb-to-py", label: "ipynb to PY" },
+  { href: "/py-to-ipynb", label: "PY to ipynb" },
   { href: "/ipynb-viewer", label: "ipynb viewer" },
   { href: "/colab-to-pdf", label: "Colab to PDF" },
 ];

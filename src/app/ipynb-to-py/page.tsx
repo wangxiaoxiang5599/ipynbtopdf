@@ -122,7 +122,7 @@ const faqs = [
   },
   {
     q: "Can I convert a .py back to .ipynb?",
-    a: "Not here. Jupytext does that on the command line, and reads the # %% markers this page writes, so a script from here goes back into a notebook with the cells intact.",
+    a: "Yes, with the py to ipynb converter on this site. It reads the # %% markers this page writes, so a script from here goes back into a notebook with the same cells and the magics restored.",
   },
   {
     q: "Is it free?",
@@ -300,6 +300,12 @@ export default function IpynbToPy() {
             {" · "}
             <Link href="/ipynb-viewer" className="font-medium text-brand-dark hover:underline">
               View the notebook online
+            </Link>
+          </p>
+          <p className="mt-2 text-[16px] text-ink-soft">
+            Have a script and need a notebook?{" "}
+            <Link href="/py-to-ipynb" className="font-medium text-brand-dark hover:underline">
+              Convert py to ipynb
             </Link>
           </p>
         </section>

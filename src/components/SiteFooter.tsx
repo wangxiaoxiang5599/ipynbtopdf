@@ -21,6 +21,7 @@ const columns = [
       { href: site.repo, label: "Source on GitHub" },
       { href: `${site.repo}/blob/master/LICENSE`, label: "MIT licence" },
       { href: `${site.repo}/issues`, label: "Report a problem" },
+      { href: `mailto:${site.email}`, label: site.email },
     ],
   },
 ];

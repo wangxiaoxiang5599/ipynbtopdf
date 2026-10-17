@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <article className="prose-page mx-auto my-10 max-w-3xl px-6 py-10 sm:my-14 sm:px-12">
-      <p className="text-muted">About this tool · Updated October 6, 2026</p>
+      <p className="text-muted">About this tool · Updated October 17, 2026</p>
       <h1 className="text-[36px] leading-tight font-semibold tracking-tight sm:text-[44px]">Your notebook, explained.</h1>
       <p className="mt-5">You should know what happens before choosing a file. Here is how this website handles notebooks and connections.</p>
 
@@ -31,9 +31,10 @@ export default function PrivacyPage() {
       <h2>What is stored on your device</h2>
       <p>The converter stores a small preference called <code>ipynbtopdf.guide-seen</code> in local storage to remember whether you have seen the PDF print instructions. It does not contain notebook contents. Browser downloads, printing and third-party storage are handled separately by your browser and those services.</p>
 
-      <h2>Inspect the project or report a problem</h2>
+      <h2>Inspect the project or get in touch</h2>
       <p>ipynbtopdf is an independent project with <a href={site.repo}>source code on GitHub</a>, published under the MIT licence. It is not affiliated with Project Jupyter or Google Colab.</p>
       <p>You can <a href={`${site.repo}/issues`}>report a problem on GitHub</a>. Issues are public, so use a minimal example with private information removed. For confidential work, check your organization&rsquo;s policies before using a third-party website.</p>
+      <p>For anything you would rather not post publicly, email <a href={`mailto:${site.email}`}>{site.email}</a>. Please don&rsquo;t attach notebooks that contain confidential data.</p>
       <p><Link href="/">Back to the converter →</Link></p>
     </article>
   );

@@ -15,4 +15,6 @@ export const site = {
   url: resolveUrl(),
   tagline: "Convert Jupyter notebooks to PDF, right in your browser",
   repo: "https://github.com/wangxiaoxiang5599/ipynbtopdf",
+  /* Cloudflare Email Routing forwards this to a personal inbox; it can receive but not send. */
+  email: "hello@ipynbtopdf.xyz",
 };

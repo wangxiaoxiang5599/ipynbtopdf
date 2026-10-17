@@ -11,7 +11,7 @@ const routes = [
   { path: "/privacy", priority: 0.5, lastModified: "2026-10-02" },
   { path: "/ipynb-to-html", priority: 0.9, lastModified: "2026-10-03" },
   { path: "/ipynb-to-py", priority: 0.9, lastModified: "2026-10-03" },
-  { path: "/ipynb-viewer", priority: 0.9, lastModified: "2026-10-03" },
+  { path: "/ipynb-viewer", priority: 0.9, lastModified: "2026-10-17" },
   { path: "/colab-to-pdf", priority: 0.9, lastModified: "2026-10-03" },
   { path: "/how-to-convert-jupyter-notebook-to-pdf", priority: 0.8, lastModified: "2026-10-03" },
   { path: "/embed", priority: 0.5, lastModified: "2026-09-29" },
